@@ -5,14 +5,14 @@ describe('TxtReaderController', () => {
   let controller: TxtReaderController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [TxtReaderController],
-    }).compile();
+	const module: TestingModule = await Test.createTestingModule({
+		controllers: [TxtReaderController],
+	}).compile();
 
-    controller = module.get<TxtReaderController>(TxtReaderController);
+	controller = module.get<TxtReaderController>(TxtReaderController);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+	expect(controller).toBeDefined();
   });
 });
