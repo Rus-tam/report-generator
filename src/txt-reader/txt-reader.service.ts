@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
-import { start } from 'repl';
 import  { UtilsService } from '../utils/utils.service';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class TxtReaderService {
 
 		const numberOfTrays = await this.trayNumber(lines);
 
-		await this.trayEfficiencies(lines, numberOfTrays);
+		const trayEffincies = this.trayEfficiencies(lines, numberOfTrays);
 	}
 
 	private async trayNumber(lines: string[]): Promise<number> {
