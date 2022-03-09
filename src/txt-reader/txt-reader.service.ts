@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { stat } from "fs";
 import * as fs from "fs/promises";
 import { UtilsService } from "../utils/utils.service";
 
@@ -17,7 +16,9 @@ export class TxtReaderService {
 
     const stateCond = this.stateConditions(lines, numberOfTrays);
 
-    console.log(stateCond);
+    const physicalCond = this.physicalConditions(lines, numberOfTrays);
+
+    console.log(physicalCond);
   }
 
   private trayNumber(lines: string[]): number {
@@ -121,6 +122,46 @@ export class TxtReaderService {
       vapourMassFlow,
       liquidVolFlow,
       vapourVolFlow,
+    };
+  }
+
+  private physicalConditions(lines: string[], numberOfTrays: number) {
+    const liquidMolWeight: number[] = [];
+    const vapourMolWeight: number[] = [];
+    const liquidMassDensity: number[] = [];
+    const vapourMassDensity: number[] = [];
+    const liquidViscosity: number[] = [];
+    const vapourViscosity: number[] = [];
+    const surfaceTension: number[] = [];
+    const workingRange = this.utilsService.defineWorkingRange(
+      lines,
+      numberOfTrays,
+      "Физическое состояние",
+    );
+
+    const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
+    const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
+
+    for (let i = 0; i < filteredLines.length; i++) {
+      if (filteredLines[i] === "Tower") {
+        liquidMolWeight.push(parseFloat(filteredLines[i + 1]));
+        vapourMolWeight.push(parseFloat(filteredLines[i + 2]));
+        liquidMassDensity.push(parseFloat(filteredLines[i + 3]));
+        vapourMassDensity.push(parseFloat(filteredLines[i + 4]));
+        liquidViscosity.push(parseFloat(filteredLines[i + 5]));
+        vapourViscosity.push(parseFloat(filteredLines[i + 6]));
+        surfaceTension.push(parseFloat(filteredLines[i + 7]));
+      }
+    }
+
+    return {
+      liquidMolWeight,
+      vapourMolWeight,
+      liquidMassDensity,
+      vapourMassDensity,
+      liquidViscosity,
+      vapourViscosity,
+      surfaceTension,
     };
   }
 }
