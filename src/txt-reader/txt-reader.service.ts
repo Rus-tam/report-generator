@@ -7,18 +7,21 @@ export class TxtReaderService {
   constructor(private readonly utilsService: UtilsService) {}
 
   async parseTXTFile() {
+    let isReboiler = false;
+    let isCondenser = false;
     const data: string = await fs.readFile("src/files/internals.txt", "utf8");
     const lines = data.split("\n");
 
+    lines.forEach((line) => {
+      line.includes("Condenser") ? (isCondenser = true) : null;
+      line.includes("Reboiler") ? (isReboiler = true) : null;
+    });
+
     const numberOfTrays = this.trayNumber(lines);
-
     const trayEffincies = this.trayEfficiencies(lines, numberOfTrays);
-
     const stateCond = this.stateConditions(lines, numberOfTrays);
-
     const physicalCond = this.physicalConditions(lines, numberOfTrays);
-
-    console.log(physicalCond);
+    const pressureList = this.pressureData(lines, numberOfTrays, isCondenser);
   }
 
   private trayNumber(lines: string[]): number {
@@ -95,11 +98,7 @@ export class TxtReaderService {
     const vapourMassFlow: number[] = [];
     const liquidVolFlow: number[] = [];
     const vapourVolFlow: number[] = [];
-    const workingRange = this.utilsService.defineWorkingRange(
-      lines,
-      numberOfTrays,
-      "Режим работы",
-    );
+    const workingRange = this.utilsService.defineWorkingRange(lines, numberOfTrays, "Режим работы");
 
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
@@ -133,11 +132,7 @@ export class TxtReaderService {
     const liquidViscosity: number[] = [];
     const vapourViscosity: number[] = [];
     const surfaceTension: number[] = [];
-    const workingRange = this.utilsService.defineWorkingRange(
-      lines,
-      numberOfTrays,
-      "Физическое состояние",
-    );
+    const workingRange = this.utilsService.defineWorkingRange(lines, numberOfTrays, "Физическое состояние");
 
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
@@ -163,5 +158,32 @@ export class TxtReaderService {
       vapourViscosity,
       surfaceTension,
     };
+  }
+
+  private pressureData(lines: string[], numberOfTrays: number, isCondenser: boolean): number[] {
+    let startPosition = 0;
+    const workingRange: string[] = [];
+    const pressureList: number[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes("Профиль давления")) {
+        isCondenser ? (startPosition = i + 4) : (startPosition = i + 2);
+      }
+    }
+
+    for (let i = startPosition; i < startPosition + numberOfTrays; i++) {
+      workingRange.push(lines[i]);
+    }
+
+    const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
+    const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
+
+    for (let i = 0; i < filteredLines.length; i++) {
+      if (filteredLines[i] === "Tower") {
+        pressureList.push(parseFloat(filteredLines[i + 1]));
+      }
+    }
+
+    return pressureList;
   }
 }
