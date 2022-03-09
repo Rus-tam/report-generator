@@ -1,12 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
-import { TxtReaderService } from './txt-reader.service';
+import { Controller, Get } from "@nestjs/common";
+import { TxtReaderService } from "./txt-reader.service";
 
-@Controller('txt-reader')
+@Controller("txt-reader")
 export class TxtReaderController {
-	constructor(private readonly txtReaderService: TxtReaderService) {}
+  constructor(private readonly txtReaderService: TxtReaderService) {}
 
-	@Get()
-	async readTxtFile() {
-		await this.txtReaderService.parseTXTFile();
-	}
+  @Get()
+  async readTxtFile() {
+    await this.txtReaderService.parseTXTFile();
+  }
 }
