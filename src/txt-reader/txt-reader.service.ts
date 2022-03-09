@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs/promises";
+import { Stream } from "stream";
 import { UtilsService } from "../utils/utils.service";
 
 @Injectable()
@@ -22,6 +23,8 @@ export class TxtReaderService {
     const stateCond = this.stateConditions(lines, numberOfTrays);
     const physicalCond = this.physicalConditions(lines, numberOfTrays);
     const pressureList = this.pressureData(lines, numberOfTrays, isCondenser);
+
+    this.feedProductStreams(lines, numberOfTrays, isCondenser, isReboiler);
   }
 
   private trayNumber(lines: string[]): number {
@@ -160,6 +163,7 @@ export class TxtReaderService {
     };
   }
 
+  // Давление по тарелкам
   private pressureData(lines: string[], numberOfTrays: number, isCondenser: boolean): number[] {
     let startPosition = 0;
     const workingRange: string[] = [];
@@ -185,5 +189,46 @@ export class TxtReaderService {
     }
 
     return pressureList;
+  }
+
+  private feedProductStreams(lines: string[], numberOfTrays: number, isCondenser, isReboiler) {
+    const workingRange: string[] = [];
+    let startPosition = 0;
+    let endPosition = 0;
+    let condenserStreams: string[] = [];
+    let stages = {};
+
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes("Базис расхода: Молярный")) {
+        startPosition = i + 3;
+      }
+      if (lines[i].includes("НАСТРОЙКА")) {
+        endPosition = i;
+      }
+    }
+
+    for (let i = startPosition; i < endPosition; i++) {
+      workingRange.push(lines[i]);
+    }
+
+    const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
+    const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
+
+    console.log(filteredLines);
+    for (let i = 0; i < filteredLines.length; i++) {
+      try {
+        if (isCondenser && filteredLines[i] === "Изобразить" && filteredLines[i - 9] === "Condenser") {
+          condenserStreams.push(filteredLines[i - 1]);
+          stages["Condenser"] = condenserStreams;
+        } else if (isCondenser && filteredLines[i] === "Изобразить" && filteredLines[i - 17] === "Condenser") {
+          condenserStreams.push(filteredLines[i - 1]);
+          stages["Condenser"] = condenserStreams;
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+
+    console.log(stages);
   }
 }
