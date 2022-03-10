@@ -195,6 +195,7 @@ export class TxtReaderService {
     const workingRange: string[] = [];
     let startPosition = 0;
     let endPosition = 0;
+    let columnStreamData: string[] = [];
     let tempStage: string = "";
     const feedStages = {};
     const drawStages = {};
@@ -216,23 +217,54 @@ export class TxtReaderService {
     const splitedLines1 = this.utilsService.arrayElementSplit(splitedLines, "__");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines1);
 
+    // Дополнительная очистка рабочего участка текста
     for (let i = 0; i < filteredLines.length; i++) {
-      if (filteredLines[i] === "Сырье" && filteredLines[i - 3] === "Main") {
-        tempStage = filteredLines[i - 4];
-        feedStages[filteredLines[i - 1]] = tempStage;
-      }
-      if (filteredLines[i] === "Сырье" && filteredLines[i - 3] !== "Main") {
-        feedStages[filteredLines[i - 1]] = tempStage;
-      }
-
-      if (filteredLines[i] === "Изобразить" && filteredLines[i - 3] === "Main") {
-        tempStage = filteredLines[i - 4];
-        drawStages[filteredLines[i - 1]] = tempStage;
-      }
-      if (filteredLines[i] === "Изобразить" && filteredLines[i - 3] !== "Main") {
-        drawStages[filteredLines[i - 1]] = tempStage;
+      if (filteredLines[i] === "Энергия") {
+        filteredLines[i] = "Delete";
+        filteredLines[i - 1] = "Delete";
+        filteredLines[i + 1] = "Delete";
+        filteredLines[i + 2] = "Delete";
+        filteredLines[i + 3] = "Delete";
+        filteredLines[i + 4] = "Delete";
+        filteredLines[i + 5] = "Delete";
       }
     }
+
+    columnStreamData = this.utilsService.deleteItem(filteredLines, "Delete");
+
+    console.log(columnStreamData);
+
+    for (let i = 0; i < columnStreamData.length; i++) {
+      if (columnStreamData[i] === "Сырье" && columnStreamData[i - 3] === "Main") {
+        tempStage = columnStreamData[i - 4];
+        feedStages[columnStreamData[i - 1]] = tempStage;
+      }
+      if (columnStreamData[i] === "Сырье" && columnStreamData[i - 3] !== "Main") {
+        feedStages[columnStreamData[i - 1]] = tempStage;
+      }
+
+      if (
+        columnStreamData[i] === "Изобразить" &&
+        (columnStreamData[i - 2] === "Condenser" || columnStreamData[i - 9] === "Condenser")
+      ) {
+        tempStage = "Condenser";
+        drawStages[columnStreamData[i - 1]] = tempStage;
+      }
+      if (columnStreamData[i] === "Изобразить" && columnStreamData[i - 3] === "Main") {
+        tempStage = columnStreamData[i - 4];
+        drawStages[columnStreamData[i - 1]] = tempStage;
+      }
+      if (columnStreamData[i] === "Изобразить" && columnStreamData[i - 3] !== "Main") {
+        drawStages[columnStreamData[i - 1]] = tempStage;
+      }
+      if (columnStreamData[i] === "Изобразить" && columnStreamData[i - 2] === "Reboiler") {
+        tempStage = "Reboiler";
+        drawStages[columnStreamData[i - 1]] = tempStage;
+      }
+    }
+
+    console.log(feedStages);
+    console.log(drawStages);
 
     return { feedStages, drawStages };
   }

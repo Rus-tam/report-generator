@@ -45,4 +45,15 @@ export class UtilsService {
 
     return workingRange;
   }
+
+  // Удаление из массива определенного элемента
+  deleteItem(lines: string[], keyWord: string): string[] {
+    const result: string[] = [];
+    for (let line of lines) {
+      if (line !== keyWord) {
+        result.push(line);
+      }
+    }
+    return result;
+  }
 }
