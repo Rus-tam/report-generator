@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs/promises";
 import { Stream } from "stream";
+import { fileURLToPath } from "url";
 import { UtilsService } from "../utils/utils.service";
 
 @Injectable()
@@ -195,8 +196,9 @@ export class TxtReaderService {
     const workingRange: string[] = [];
     let startPosition = 0;
     let endPosition = 0;
-    let condenserStreams: string[] = [];
-    let stages = {};
+    let tempStage: string = "";
+    const feedStages = {};
+    const drawStages = {};
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].includes("Базис расхода: Молярный")) {
@@ -212,23 +214,27 @@ export class TxtReaderService {
     }
 
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
-    const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
+    const splitedLines1 = this.utilsService.arrayElementSplit(splitedLines, "__");
+    const filteredLines = this.utilsService.deleteEmptyElements(splitedLines1);
 
-    console.log(filteredLines);
     for (let i = 0; i < filteredLines.length; i++) {
-      try {
-        if (isCondenser && filteredLines[i] === "Изобразить" && filteredLines[i - 9] === "Condenser") {
-          condenserStreams.push(filteredLines[i - 1]);
-          stages["Condenser"] = condenserStreams;
-        } else if (isCondenser && filteredLines[i] === "Изобразить" && filteredLines[i - 17] === "Condenser") {
-          condenserStreams.push(filteredLines[i - 1]);
-          stages["Condenser"] = condenserStreams;
-        }
-      } catch (e) {
-        return null;
+      if (filteredLines[i] === "Сырье" && filteredLines[i - 3] === "Main") {
+        tempStage = filteredLines[i - 4];
+        feedStages[filteredLines[i - 1]] = tempStage;
+      }
+      if (filteredLines[i] === "Сырье" && filteredLines[i - 3] !== "Main") {
+        feedStages[filteredLines[i - 1]] = tempStage;
+      }
+
+      if (filteredLines[i] === "Изобразить" && filteredLines[i - 3] === "Main") {
+        tempStage = filteredLines[i - 4];
+        drawStages[filteredLines[i - 1]] = tempStage;
+      }
+      if (filteredLines[i] === "Изобразить" && filteredLines[i - 3] !== "Main") {
+        drawStages[filteredLines[i - 1]] = tempStage;
       }
     }
 
-    console.log(stages);
+    return { feedStages, drawStages };
   }
 }
