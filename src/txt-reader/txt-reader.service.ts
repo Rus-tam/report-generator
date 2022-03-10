@@ -1,7 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs/promises";
-import { Stream } from "stream";
-import { fileURLToPath } from "url";
 import { UtilsService } from "../utils/utils.service";
 
 @Injectable()
@@ -24,8 +22,8 @@ export class TxtReaderService {
     const stateCond = this.stateConditions(lines, numberOfTrays);
     const physicalCond = this.physicalConditions(lines, numberOfTrays);
     const pressureList = this.pressureData(lines, numberOfTrays, isCondenser);
-
-    this.feedProductStreams(lines, numberOfTrays, isCondenser, isReboiler);
+    const { feedStages, drawStages } = this.feedProductStreams(lines, numberOfTrays, isCondenser, isReboiler);
+    const internalExternalStr = this.internalExternalStreams(lines);
   }
 
   private trayNumber(lines: string[]): number {
@@ -192,6 +190,7 @@ export class TxtReaderService {
     return pressureList;
   }
 
+  // Нужно рефакторить
   private feedProductStreams(lines: string[], numberOfTrays: number, isCondenser, isReboiler) {
     const workingRange: string[] = [];
     let startPosition = 0;
@@ -236,5 +235,26 @@ export class TxtReaderService {
     }
 
     return { feedStages, drawStages };
+  }
+
+  private internalExternalStreams(lines: string[]): {} {
+    const workingRange: string[] = [];
+    const internalExternal = {};
+    for (let line of lines) {
+      if (line.includes("P-H испарения")) {
+        workingRange.push(line);
+      }
+    }
+
+    const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
+    const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
+
+    for (let i = 0; i < filteredLines.length; i++) {
+      if (filteredLines[i] === "@Main") {
+        internalExternal[filteredLines[i - 2]] = filteredLines[i - 1];
+      }
+    }
+
+    return internalExternal;
   }
 }
