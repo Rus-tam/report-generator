@@ -9,6 +9,12 @@ export class TxtReaderService {
   async parseTXTFile() {
     let isReboiler = false;
     let isCondenser = false;
+    let startPosition = 0;
+    let endPosition = 0;
+    const workingRangeTrayEff: string[] = [];
+    const workingRangePress: string[] = [];
+    const workingRangeInternalExternal: string[] = [];
+
     const data: string = await fs.readFile("src/files/internals.txt", "utf8");
     const lines = data.split("\n");
 
@@ -18,12 +24,47 @@ export class TxtReaderService {
     });
 
     const numberOfTrays = this.trayNumber(lines);
-    const trayEffincies = this.trayEfficiencies(lines, numberOfTrays);
+
+    // Определяем рабочие участки текста
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes("КПД ступеней")) {
+        startPosition = i;
+        isCondenser ? (startPosition = startPosition + 3) : (startPosition = startPosition + 2);
+        endPosition = startPosition + numberOfTrays - 1;
+
+        for (let i = startPosition; i < endPosition; i++) {
+          workingRangeTrayEff.push(lines[i]);
+        }
+      }
+
+      if (lines[i].includes("Профиль давления")) {
+        isCondenser ? (startPosition = i + 4) : (startPosition = i + 2);
+        for (let u = startPosition; u < startPosition + numberOfTrays + 1; u++) {
+          workingRangePress.push(lines[u]);
+        }
+      }
+
+      if (lines[i].includes("P-H испарения")) {
+        workingRangeInternalExternal.push(lines[i]);
+      }
+    }
+
+    const trayEffincies = this.trayEfficiencies(workingRangeTrayEff);
     const stateCond = this.stateConditions(lines, numberOfTrays);
     const physicalCond = this.physicalConditions(lines, numberOfTrays);
-    const pressureList = this.pressureData(lines, numberOfTrays, isCondenser);
+    const pressureList = this.pressureData(workingRangePress);
     const { feedStages, drawStages } = this.feedProductStreams(lines, numberOfTrays, isCondenser, isReboiler);
-    const internalExternalStr = this.internalExternalStreams(lines);
+    const internalExternalStr = this.internalExternalStreams(workingRangeInternalExternal);
+
+    return {
+      trayEffincies,
+      stateCond,
+      physicalCond,
+      pressureList,
+      feedStages,
+      drawStages,
+      internalExternalStr,
+    };
   }
 
   private trayNumber(lines: string[]): number {
@@ -52,29 +93,8 @@ export class TxtReaderService {
   }
 
   // Нужно рефакторить
-  private trayEfficiencies(lines: string[], numberOfTrays: number): string[] {
-    let startPosition = 0;
-    let endPosition = 0;
-    let workingRange: string[] = [];
-    let isCondenser = false;
+  private trayEfficiencies(workingRange: string[]): string[] {
     let trayEfficiencies: string[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes("КПД ступеней")) {
-        startPosition = i;
-      }
-      if (lines[i].includes("Condenser")) {
-        isCondenser = true;
-      }
-    }
-
-    // В выгрузке КПД конденсатора и ребойлера включается в кпд ступеней.
-    // Тут идет корректировка выборки значений
-    isCondenser ? (startPosition = startPosition + 3) : null;
-    endPosition = startPosition + numberOfTrays;
-
-    for (let i = startPosition; i < endPosition; i++) {
-      workingRange.push(lines[i]);
-    }
 
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
@@ -163,20 +183,8 @@ export class TxtReaderService {
   }
 
   // Давление по тарелкам
-  private pressureData(lines: string[], numberOfTrays: number, isCondenser: boolean): number[] {
-    let startPosition = 0;
-    const workingRange: string[] = [];
+  private pressureData(workingRange: string[]): number[] {
     const pressureList: number[] = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes("Профиль давления")) {
-        isCondenser ? (startPosition = i + 4) : (startPosition = i + 2);
-      }
-    }
-
-    for (let i = startPosition; i < startPosition + numberOfTrays; i++) {
-      workingRange.push(lines[i]);
-    }
 
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
@@ -232,8 +240,6 @@ export class TxtReaderService {
 
     columnStreamData = this.utilsService.deleteItem(filteredLines, "Delete");
 
-    console.log(columnStreamData);
-
     for (let i = 0; i < columnStreamData.length; i++) {
       if (columnStreamData[i] === "Сырье" && columnStreamData[i - 3] === "Main") {
         tempStage = columnStreamData[i - 4];
@@ -263,20 +269,11 @@ export class TxtReaderService {
       }
     }
 
-    console.log(feedStages);
-    console.log(drawStages);
-
     return { feedStages, drawStages };
   }
 
-  private internalExternalStreams(lines: string[]): {} {
-    const workingRange: string[] = [];
+  private internalExternalStreams(workingRange: string[]): {} {
     const internalExternal = {};
-    for (let line of lines) {
-      if (line.includes("P-H испарения")) {
-        workingRange.push(line);
-      }
-    }
 
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
