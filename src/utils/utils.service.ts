@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 
 @Injectable()
 export class UtilsService {
@@ -44,5 +44,38 @@ export class UtilsService {
     }
 
     return workingRange;
+  }
+
+  // Определить ключи элементов в объекте
+  objectKeyFinder(obj: {}) {
+    const keys: string[] = [];
+    try {
+      for (let key in obj) {
+        keys.push(key);
+      }
+    } catch (e) {
+      throw new NotFoundException("Не удается найти ключи у объекта");
+    }
+    return keys;
+  }
+
+  // Извлечение составов из экселевского документа
+  streamComposition(stages: {}, compositions: {}[]) {
+    let molFraction = {};
+    let streamComposition = {};
+    const streams = this.objectKeyFinder(stages);
+    console.log(streams);
+    for (let stream of streams) {
+      for (let obj of compositions) {
+        if (obj[stream] >= 0.000001) {
+          molFraction[obj["__EMPTY"]] = obj[stream];
+        } else {
+          molFraction[obj["__EMPTY"]] = 0;
+        }
+      }
+      streamComposition[stream] = molFraction;
+    }
+
+    return streamComposition;
   }
 }
