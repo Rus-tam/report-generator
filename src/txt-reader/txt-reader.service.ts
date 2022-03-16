@@ -238,7 +238,7 @@ export class TxtReaderService {
       }
     }
 
-    columnStreamData = this.utilsService.deleteItem(filteredLines, "Delete");
+    columnStreamData = filteredLines.filter((item) => item !== "Delete");
 
     for (let i = 0; i < columnStreamData.length; i++) {
       if (columnStreamData[i] === "Сырье" && columnStreamData[i - 3] === "Main") {

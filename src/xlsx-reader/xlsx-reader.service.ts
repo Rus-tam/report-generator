@@ -8,8 +8,6 @@ export class XlsxReaderService {
     const sheet_name_list = workbook.SheetNames;
     const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
 
-    for (let item of data) {
-      console.log(item["__EMPTY"]);
-    }
+    console.log(data);
   }
 }
