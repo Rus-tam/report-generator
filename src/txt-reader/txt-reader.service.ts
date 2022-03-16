@@ -54,7 +54,7 @@ export class TxtReaderService {
       }
     }
 
-    const trayEffincies = this.trayEfficiencies(workingRangeTrayEff);
+    const trayEfficiencies = this.trayEfficiencies(workingRangeTrayEff);
     const stateCond = this.stateConditions(lines, numberOfTrays);
     const physicalCond = this.physicalConditions(lines, numberOfTrays);
     const pressureList = this.pressureData(workingRangePress);
@@ -63,7 +63,7 @@ export class TxtReaderService {
 
     return {
       colNumb,
-      trayEffincies,
+      trayEfficiencies,
       stateCond,
       physicalCond,
       pressureList,
