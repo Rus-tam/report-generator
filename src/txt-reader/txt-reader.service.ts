@@ -7,6 +7,7 @@ export class TxtReaderService {
   constructor(private readonly utilsService: UtilsService) {}
 
   async parseTXTFile() {
+    let colNumb = "";
     let isReboiler = false;
     let isCondenser = false;
     let startPosition = 0;
@@ -27,6 +28,12 @@ export class TxtReaderService {
 
     // Определяем рабочие участки текста
     for (let i = 0; i < lines.length; i++) {
+      // Определение номера колонны
+      if (lines[i].includes("АКТИВНЫЕ ВНУТРЕННИЕ ПАРАМЕТРЫ")) {
+        const splitedLine = this.utilsService.arrayElementSplit(lines[i].split(" "), "@");
+        const filteredLine = splitedLine.filter((item) => item !== "");
+        colNumb = filteredLine[filteredLine.length - 2];
+      }
       if (lines[i].includes("КПД ступеней")) {
         startPosition = i;
         isCondenser ? (startPosition = startPosition + 3) : (startPosition = startPosition + 2);
@@ -36,14 +43,12 @@ export class TxtReaderService {
           workingRangeTrayEff.push(lines[i]);
         }
       }
-
       if (lines[i].includes("Профиль давления")) {
         isCondenser ? (startPosition = i + 4) : (startPosition = i + 2);
         for (let u = startPosition; u < startPosition + numberOfTrays + 1; u++) {
           workingRangePress.push(lines[u]);
         }
       }
-
       if (lines[i].includes("P-H испарения")) {
         workingRangeInternalExternal.push(lines[i]);
       }
@@ -57,6 +62,7 @@ export class TxtReaderService {
     const internalExternalStr = this.internalExternalStreams(workingRangeInternalExternal);
 
     return {
+      colNumb,
       trayEffincies,
       stateCond,
       physicalCond,

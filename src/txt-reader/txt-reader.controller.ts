@@ -7,6 +7,6 @@ export class TxtReaderController {
 
   @Get()
   async readTxtFile() {
-    await this.txtReaderService.parseTXTFile();
+    return this.txtReaderService.parseTXTFile();
   }
 }
