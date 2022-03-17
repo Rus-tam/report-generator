@@ -63,11 +63,24 @@ export class UtilsService {
   streamComposition(stages: {}, compositions: {}[]): {} {
     let molFraction = {};
     let streamComposition = {};
-    const streams = this.objectKeyFinder(stages);
+    const streams = this.objectKeyFinder(stages).filter((stream) => {
+      if (
+        !stream.includes("Reboiler") &&
+        !stream.includes("Condenser") &&
+        !stream.includes("Boilup") &&
+        !stream.includes("Reflux")
+      ) {
+        return stream;
+      }
+    });
+
     for (let stream of streams) {
+      molFraction = {};
       for (let obj of compositions) {
         if (obj[stream] >= 0.000001) {
           molFraction[obj["__EMPTY"]] = obj[stream];
+        } else if (obj[stream] === undefined) {
+          null;
         } else {
           molFraction[obj["__EMPTY"]] = 0;
         }
@@ -102,6 +115,7 @@ export class UtilsService {
     }
 
     for (let stream of streams) {
+      propData = {};
       for (let obj of properties) {
         if (obj["__EMPTY"] === contents[9] && obj[stream] !== "<empty>") {
           propData[contents[9]] = obj[stream] * 3600;

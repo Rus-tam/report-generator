@@ -16,7 +16,7 @@ export class XlsxReaderService {
     const materialStreams: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 
     const { feedCompositions, drawCompositions } = this.streamCompositions(compositions, txtData);
-    this.streamProperties(materialStreams, txtData);
+    const { feedProperties, drawProperties } = this.streamProperties(materialStreams, txtData);
   }
 
   private streamCompositions(compositions: {}[], txtData: ITxtData): IStreamComposition {

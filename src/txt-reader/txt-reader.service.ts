@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs/promises";
+import { IFeedProductStreams } from "src/interfaces/feedProductStreams.interface";
 import { ITxtData } from "src/interfaces/txtData.interface";
 import { UtilsService } from "../utils/utils.service";
 
@@ -59,7 +60,7 @@ export class TxtReaderService {
     const stateCond = this.stateConditions(lines, numberOfTrays);
     const physicalCond = this.physicalConditions(lines, numberOfTrays);
     const pressureList = this.pressureData(workingRangePress);
-    const { feedStages, drawStages } = this.feedProductStreams(lines, numberOfTrays, isCondenser, isReboiler);
+    const { feedStages, drawStages } = this.feedProductStreams(lines, numberOfTrays, colNumb, isCondenser, isReboiler);
     const internalExternalStr = this.internalExternalStreams(workingRangeInternalExternal);
 
     return {
@@ -206,7 +207,13 @@ export class TxtReaderService {
   }
 
   // Нужно рефакторить
-  private feedProductStreams(lines: string[], numberOfTrays: number, isCondenser, isReboiler) {
+  private feedProductStreams(
+    lines: string[],
+    numberOfTrays: number,
+    colNumb: string,
+    isCondenser: boolean,
+    isReboiler: boolean,
+  ): IFeedProductStreams {
     const workingRange: string[] = [];
     let startPosition = 0;
     let endPosition = 0;
@@ -274,6 +281,16 @@ export class TxtReaderService {
         tempStage = "Reboiler";
         drawStages[columnStreamData[i - 1]] = tempStage;
       }
+    }
+
+    // Добавляем потоки потоки ребойлера и конденсатора из внутренней схемы
+    if (isCondenser) {
+      drawStages[`To Condenser @${colNumb}`] = "1";
+      feedStages[`Reflux @${colNumb}`] = "1";
+    }
+    if (isReboiler) {
+      drawStages[`To Reboiler @${colNumb}`] = `${numberOfTrays}`;
+      feedStages[`Boilup @${colNumb}`] = `${numberOfTrays}`;
     }
 
     return { feedStages, drawStages };
