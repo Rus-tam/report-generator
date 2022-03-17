@@ -1,33 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { TxtReaderService } from "src/txt-reader/txt-reader.service";
 import { UtilsService } from "src/utils/utils.service";
+import { ITxtData } from "src/interfaces/txtData.interface";
 import * as xlsx from "xlsx";
-
-interface ITxtData {
-  colNumb: string;
-  trayEfficiencies: string[];
-  stateCond: {
-    liquidTemp: number[];
-    vapourTemp: number[];
-    liquidMassFlow: number[];
-    vapourMassFlow: number[];
-    liquidVolFlow: number[];
-    vapourVolFlow: number[];
-  };
-  physicalCond: {
-    liquidMolWeight: number[];
-    vapourMolWeight: number[];
-    liquidMassDensity: number[];
-    vapourMassDensity: number[];
-    liquidViscosity: number[];
-    vapourViscosity: number[];
-    surfaceTension: number[];
-  };
-  pressureList: number[];
-  feedStages: {};
-  drawStages: {};
-  internalExternalStr: {};
-}
+import { IStreamComposition } from "src/interfaces/streamComposition.interface";
+import { IStreamProperty } from "src/interfaces/streamProperty.interface";
 
 @Injectable()
 export class XlsxReaderService {
@@ -38,10 +15,11 @@ export class XlsxReaderService {
     const compositions: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
     const materialStreams: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 
-    const { feedCompositions, drawCompositions } = await this.streamCompositions(compositions, txtData);
+    const { feedCompositions, drawCompositions } = this.streamCompositions(compositions, txtData);
+    this.streamProperties(materialStreams, txtData);
   }
 
-  private async streamCompositions(compositions: {}[], txtData: ITxtData) {
+  private streamCompositions(compositions: {}[], txtData: ITxtData): IStreamComposition {
     const { feedStages, drawStages, ...rest } = txtData;
     const drawCompositions = this.utilsService.streamComposition(drawStages, compositions);
     const feedCompositions = this.utilsService.streamComposition(feedStages, compositions);
@@ -49,5 +27,11 @@ export class XlsxReaderService {
     return { feedCompositions, drawCompositions };
   }
 
-  private async streamProperties(compositions: {}[]) {}
+  private streamProperties(materialStreams: {}[], txtData: ITxtData): IStreamProperty {
+    const { feedStages, drawStages, ...rest } = txtData;
+    const feedProperties = this.utilsService.streamProperty(feedStages, materialStreams);
+    const drawProperties = this.utilsService.streamProperty(drawStages, materialStreams);
+
+    return { feedProperties, drawProperties };
+  }
 }

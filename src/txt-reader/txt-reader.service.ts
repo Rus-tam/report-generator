@@ -1,12 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs/promises";
+import { ITxtData } from "src/interfaces/txtData.interface";
 import { UtilsService } from "../utils/utils.service";
 
 @Injectable()
 export class TxtReaderService {
   constructor(private readonly utilsService: UtilsService) {}
 
-  async parseTXTFile() {
+  async parseTXTFile(): Promise<ITxtData> {
     let colNumb = "";
     let isReboiler = false;
     let isCondenser = false;

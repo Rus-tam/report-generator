@@ -60,11 +60,10 @@ export class UtilsService {
   }
 
   // Извлечение составов из экселевского документа
-  streamComposition(stages: {}, compositions: {}[]) {
+  streamComposition(stages: {}, compositions: {}[]): {} {
     let molFraction = {};
     let streamComposition = {};
     const streams = this.objectKeyFinder(stages);
-    console.log(streams);
     for (let stream of streams) {
       for (let obj of compositions) {
         if (obj[stream] >= 0.000001) {
@@ -77,5 +76,45 @@ export class UtilsService {
     }
 
     return streamComposition;
+  }
+
+  // Извлечение свойств потоков из экселевского документа
+  streamProperty(stages: {}, properties: {}[]): {} {
+    const contents = [
+      "Vapour Fraction",
+      "Temperature [C]",
+      "Pressure [MPa]",
+      "Molar Flow [kgmole/h]",
+      "Mass Flow [kg/h]",
+      "Heat Flow [MW]",
+      "Molecular Weight",
+      "Mass Density [kg/m3]",
+      "Vapour Volume Flow [m3/h]",
+      "Liquid Volume Flow [m3/h]",
+    ];
+    let propData = {};
+    let streamProperties = {};
+    const streams = this.objectKeyFinder(stages);
+
+    // Из-за проблем с кодировкой заголовки строчей не прочитываются. Соответственно их нужно заменить
+    for (let i = 0; i < contents.length; i++) {
+      properties[i]["__EMPTY"] = contents[i];
+    }
+
+    for (let stream of streams) {
+      for (let obj of properties) {
+        if (obj["__EMPTY"] === contents[9] && obj[stream] !== "<empty>") {
+          propData[contents[9]] = obj[stream] * 3600;
+        } else if (obj["__EMPTY"] === contents[9] && obj[stream] === "<empty>") {
+          propData[contents[9]] = 0;
+        } else if (obj["__EMPTY"] !== contents[9] && obj[stream] !== "<empty>") {
+          propData[obj["__EMPTY"]] = obj[stream];
+        } else if (obj["__EMPTY"] !== contents[9] && obj[stream] === "<empty>") {
+          propData[obj["__EMPTY"]] = 0;
+        }
+      }
+      streamProperties[stream] = propData;
+    }
+    return streamProperties;
   }
 }
