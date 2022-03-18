@@ -39,7 +39,7 @@ export class TxtReaderService {
       if (lines[i].includes("КПД ступеней")) {
         startPosition = i;
         isCondenser ? (startPosition = startPosition + 3) : (startPosition = startPosition + 2);
-        endPosition = startPosition + numberOfTrays - 1;
+        endPosition = startPosition + numberOfTrays;
 
         for (let i = startPosition; i < endPosition; i++) {
           workingRangeTrayEff.push(lines[i]);
@@ -107,10 +107,12 @@ export class TxtReaderService {
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
 
+    console.log(filteredLines);
+
     trayEfficiencies.push(filteredLines[0]);
     for (let i = 0; i < filteredLines.length; i++) {
       try {
-        if (filteredLines[i] === "\r") {
+        if (filteredLines[i] === "\r" && i !== filteredLines.length - 1) {
           trayEfficiencies.push(filteredLines[i + 1]);
         }
       } catch (e) {

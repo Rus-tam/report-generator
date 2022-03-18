@@ -5,11 +5,12 @@ import { ITxtData } from "src/interfaces/txtData.interface";
 import * as xlsx from "xlsx";
 import { IStreamComposition } from "src/interfaces/streamComposition.interface";
 import { IStreamProperty } from "src/interfaces/streamProperty.interface";
+import { IXlsxData } from "src/interfaces/xlsxData.interface";
 
 @Injectable()
 export class XlsxReaderService {
   constructor(private readonly txtReaderService: TxtReaderService, private utilsService: UtilsService) {}
-  async parseXlsxFile() {
+  async parseXlsxFile(): Promise<IXlsxData> {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const workbook = await xlsx.readFile("src/files/streams.xlsx");
     const compositions: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
@@ -17,6 +18,8 @@ export class XlsxReaderService {
 
     const { feedCompositions, drawCompositions } = this.streamCompositions(compositions, txtData);
     const { feedProperties, drawProperties } = this.streamProperties(materialStreams, txtData);
+
+    return { feedCompositions, drawCompositions, feedProperties, drawProperties };
   }
 
   // Извлечение составов из экселевского документа

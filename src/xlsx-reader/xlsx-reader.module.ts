@@ -8,5 +8,6 @@ import { UtilsModule } from "src/utils/utils.module";
   imports: [TxtReaderModule, UtilsModule],
   providers: [XlsxReaderService],
   controllers: [XlsxReaderController],
+  exports: [XlsxReaderService],
 })
 export class XlsxReaderModule {}
