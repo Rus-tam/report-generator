@@ -1,5 +1,6 @@
 export interface ITxtData {
   colNumb: string;
+  numberOfTrays: number;
   trayEfficiencies: string[];
   stateCond: {
     liquidTemp: number[];

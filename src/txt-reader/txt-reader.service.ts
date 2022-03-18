@@ -65,6 +65,7 @@ export class TxtReaderService {
 
     return {
       colNumb,
+      numberOfTrays,
       trayEfficiencies,
       stateCond,
       physicalCond,
@@ -106,8 +107,6 @@ export class TxtReaderService {
 
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines);
-
-    console.log(filteredLines);
 
     trayEfficiencies.push(filteredLines[0]);
     for (let i = 0; i < filteredLines.length; i++) {
