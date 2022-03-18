@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { IJsonCreator } from "src/interfaces/jsonCreator.interface";
 import { ITxtData } from "src/interfaces/txtData.interface";
+import { IXlsxData } from "src/interfaces/xlsxData.interface";
 
 @Injectable()
 export class UtilsService {
@@ -62,7 +63,7 @@ export class UtilsService {
   }
 
   // Создаем json на основе данных из текстового документа
-  jsonCreator(txtData: ITxtData): IJsonCreator[] {
+  jsonCreator(txtData: ITxtData, xlsxData: IXlsxData): IJsonCreator[] {
     const {
       colNumb,
       numberOfTrays,
@@ -85,6 +86,11 @@ export class UtilsService {
       surfaceTension,
     } = physicalCond;
     const excelData: IJsonCreator[] = [];
+
+    const feedStreams = this.objectKeyFinder(xlsxData.feedProperties);
+    const drawStreams = this.objectKeyFinder(xlsxData.drawProperties);
+
+    console.log(xlsxData.feedProperties[feedStreams[2]]);
 
     for (let i = 0; i < numberOfTrays * 2 + 3; i++) {
       if (i < numberOfTrays) {
