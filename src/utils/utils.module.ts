@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
-import { UtilsService } from './utils.service';
+import { Module } from "@nestjs/common";
+import { ExcelDataService } from "./excelData.service";
+import { MainUtilsService } from "./mainUtils.service";
 
 @Module({
-    providers: [UtilsService],
-    exports: [UtilsService],
+  providers: [MainUtilsService, ExcelDataService],
+  exports: [MainUtilsService, ExcelDataService],
 })
-export class UtilsModule {};
+export class UtilsModule {}

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { TxtReaderService } from "src/txt-reader/txt-reader.service";
-import { UtilsService } from "src/utils/utils.service";
+import { MainUtilsService } from "src/utils/mainUtils.service";
 import { ITxtData } from "src/interfaces/txtData.interface";
 import * as xlsx from "xlsx";
 import { IStreamComposition } from "src/interfaces/streamComposition.interface";
@@ -9,7 +9,7 @@ import { IXlsxData } from "src/interfaces/xlsxData.interface";
 
 @Injectable()
 export class XlsxReaderService {
-  constructor(private readonly txtReaderService: TxtReaderService, private utilsService: UtilsService) {}
+  constructor(private readonly txtReaderService: TxtReaderService, private utilsService: MainUtilsService) {}
   async parseXlsxFile(): Promise<IXlsxData> {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const workbook = await xlsx.readFile("src/files/streams.xlsx");
