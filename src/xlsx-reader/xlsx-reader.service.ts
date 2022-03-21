@@ -6,13 +6,14 @@ import * as xlsx from "xlsx";
 import { IStreamComposition } from "src/interfaces/streamComposition.interface";
 import { IStreamProperty } from "src/interfaces/streamProperty.interface";
 import { IXlsxData } from "src/interfaces/xlsxData.interface";
+import { IStreamProp } from "src/interfaces/streamProp.interface";
 
 @Injectable()
 export class XlsxReaderService {
-  constructor(private readonly txtReaderService: TxtReaderService, private utilsService: MainUtilsService) {}
+  constructor(private readonly txtReaderService: TxtReaderService, private mainUtilsService: MainUtilsService) {}
   async parseXlsxFile(): Promise<IXlsxData> {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
-    const workbook = await xlsx.readFile("src/files/streams.xlsx");
+    const workbook = xlsx.readFile("src/files/streams.xlsx");
     const compositions: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
     const materialStreams: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 
@@ -26,7 +27,7 @@ export class XlsxReaderService {
   private streamCompositionExtractor(stages: {}, compositions: {}[]): {} {
     let molFraction = {};
     let streamComposition = {};
-    const streams = this.utilsService.objectKeyFinder(stages).filter((stream) => {
+    const streams = this.mainUtilsService.objectKeyFinder(stages).filter((stream) => {
       if (
         !stream.includes("Reboiler") &&
         !stream.includes("Condenser") &&
@@ -68,9 +69,19 @@ export class XlsxReaderService {
       "Vapour Volume Flow [m3/h]",
       "Liquid Volume Flow [m3/h]",
     ];
-    let propData = {};
+    let propData: IStreamProp = {
+      "Temperature [C]": 0,
+      "Pressure [MPa]": 0,
+      "Molar Flow [kgmole/h]": 0,
+      "Mass Flow [kg/h]": 0,
+      "Heat Flow [MW]": 0,
+      "Molecular Weight": 0,
+      "Mass Density [kg/m3]": 0,
+      "Vapour Volume Flow [m3/h]": 0,
+      "Liquid Volume Flow [m3/h]": 0,
+    };
     let streamProperties = {};
-    const streams = this.utilsService.objectKeyFinder(stages);
+    const streams = this.mainUtilsService.objectKeyFinder(stages);
 
     // Из-за проблем с кодировкой заголовки строчей не прочитываются. Соответственно их нужно заменить
     for (let i = 0; i < contents.length; i++) {
@@ -78,7 +89,17 @@ export class XlsxReaderService {
     }
 
     for (let stream of streams) {
-      propData = {};
+      propData = {
+        "Temperature [C]": 0,
+        "Pressure [MPa]": 0,
+        "Molar Flow [kgmole/h]": 0,
+        "Mass Flow [kg/h]": 0,
+        "Heat Flow [MW]": 0,
+        "Molecular Weight": 0,
+        "Mass Density [kg/m3]": 0,
+        "Vapour Volume Flow [m3/h]": 0,
+        "Liquid Volume Flow [m3/h]": 0,
+      };
       for (let obj of properties) {
         if (obj["__EMPTY"] === contents[9] && obj[stream] !== "<empty>") {
           propData[contents[9]] = obj[stream] * 3600;
@@ -90,8 +111,9 @@ export class XlsxReaderService {
           propData[obj["__EMPTY"]] = 0;
         }
       }
-      streamProperties[stream] = propData;
+      streamProperties[stream] = this.mainUtilsService.propDataRound(propData);
     }
+    console.log(streamProperties);
     return streamProperties;
   }
 
@@ -107,6 +129,7 @@ export class XlsxReaderService {
     const { feedStages, drawStages, ...rest } = txtData;
     const feedProperties = this.streamPropertiesExtractor(feedStages, materialStreams);
     const drawProperties = this.streamPropertiesExtractor(drawStages, materialStreams);
+    console.log(feedProperties);
 
     return { feedProperties, drawProperties };
   }

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { IJsonCreator } from "src/interfaces/jsonCreator.interface";
+import { IStreamProp } from "src/interfaces/streamProp.interface";
 import { ITxtData } from "src/interfaces/txtData.interface";
 import { IXlsxData } from "src/interfaces/xlsxData.interface";
 
@@ -69,5 +70,25 @@ export class MainUtilsService {
       streamStagePair.push(`${stream} / ${stages[stream]}`);
     }
     return streamStagePair;
+  }
+
+  // Округление до тысячных
+  rounded(num: number) {
+    return +num.toFixed(3);
+  }
+
+  // Округление данных в propData
+  propDataRound(propData: IStreamProp) {
+    return {
+      "Temperature [C]": this.rounded(propData["Temperature [C]"]),
+      "Pressure [MPa]": this.rounded(propData["Pressure [MPa]"]),
+      "Molar Flow [kgmole/h]": this.rounded(propData["Molar Flow [kgmole/h]"]),
+      "Mass Flow [kg/h]": this.rounded(propData["Mass Flow [kg/h]"]),
+      "Heat Flow [MW]": this.rounded(propData["Heat Flow [MW]"]),
+      "Molecular Weight": this.rounded(propData["Molecular Weight"]),
+      "Mass Density [kg/m3]": this.rounded(propData["Mass Density [kg/m3]"]),
+      "Vapour Volume Flow [m3/h]": this.rounded(propData["Vapour Volume Flow [m3/h]"]),
+      "Liquid Volume Flow [m3/h]": this.rounded(propData["Liquid Volume Flow [m3/h]"]),
+    };
   }
 }
