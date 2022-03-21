@@ -8,4 +8,6 @@ export interface IJsonCreator {
   liquidMolWeight: number | null | string;
   liquidViscosity: number | null | string;
   surfaceTension: number | null | string;
+  additionalField1: number | null | string;
+  additionalField2: number | null | string;
 }

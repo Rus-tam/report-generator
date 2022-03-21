@@ -20,17 +20,17 @@ export class XlsxWriterService {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile();
 
-    for (let i = 0; i < 9; i++) {
-      colInfo.push({ wch: 18 });
+    for (let i = 0; i < 11; i++) {
+      colInfo.push({ wch: 25 });
     }
 
-    const excelData = this.utilsService.jsonCreator(txtData, xlsxData);
+    const excelData = this.utilsService.mainJsonCreator(txtData, xlsxData);
 
     try {
       let workBook = xlsx.utils.book_new();
       const workSheet = xlsx.utils.json_to_sheet(excelData);
       workSheet["!cols"] = colInfo;
-      xlsx.utils.book_append_sheet(workBook, workSheet, "response");
+      xlsx.utils.book_append_sheet(workBook, workSheet, "Main Data");
       xlsx.writeFile(workBook, "response.xlsx");
     } catch (e) {
       throw new BadRequestException("Закройте открытый файл Excel");

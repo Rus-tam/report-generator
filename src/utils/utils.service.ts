@@ -62,8 +62,17 @@ export class UtilsService {
     return keys;
   }
 
+  // Объеденяет название потока и номер его тарелки
+  streamStagePairMaker(stages: {}, streams: string[]): string[] {
+    const streamStagePair: string[] = [];
+    for (let stream of streams) {
+      streamStagePair.push(`${stream} / ${stages[stream]}`);
+    }
+    return streamStagePair;
+  }
+
   // Создаем json на основе данных из текстового документа
-  jsonCreator(txtData: ITxtData, xlsxData: IXlsxData): IJsonCreator[] {
+  mainJsonCreator(txtData: ITxtData, xlsxData: IXlsxData): IJsonCreator[] {
     const {
       colNumb,
       numberOfTrays,
@@ -90,9 +99,10 @@ export class UtilsService {
     const feedStreams = this.objectKeyFinder(xlsxData.feedProperties);
     const drawStreams = this.objectKeyFinder(xlsxData.drawProperties);
 
-    console.log(xlsxData.feedProperties[feedStreams[2]]);
+    const streamStagePairFeed = this.streamStagePairMaker(feedStages, this.objectKeyFinder(xlsxData.feedProperties));
+    const streamStagePairDraw = this.streamStagePairMaker(drawStages, drawStreams);
 
-    for (let i = 0; i < numberOfTrays * 2 + 3; i++) {
+    for (let i = 0; i < numberOfTrays * 2 + 3 + feedStreams.length + drawStreams.length + 10; i++) {
       if (i < numberOfTrays) {
         excelData.push({
           trayNumber: i + 1,
@@ -104,6 +114,8 @@ export class UtilsService {
           liquidMolWeight: liquidMolWeight[i],
           liquidViscosity: liquidViscosity[i],
           surfaceTension: surfaceTension[i],
+          additionalField1: null,
+          additionalField2: null,
         });
       } else if (i === numberOfTrays + 1) {
         excelData.push({
@@ -116,6 +128,8 @@ export class UtilsService {
           liquidMolWeight: null,
           liquidViscosity: null,
           surfaceTension: null,
+          additionalField1: null,
+          additionalField2: null,
         });
       } else if (i === numberOfTrays + 2) {
         excelData.push({
@@ -128,8 +142,10 @@ export class UtilsService {
           liquidMolWeight: "vapourMolWeight",
           liquidViscosity: "vapourViscosity",
           surfaceTension: null,
+          additionalField1: null,
+          additionalField2: null,
         });
-      } else if (i > numberOfTrays + 2) {
+      } else if (i > numberOfTrays + 2 && i < numberOfTrays * 2 + 3) {
         excelData.push({
           trayNumber: i - numberOfTrays - 2,
           trayEfficiencies: trayEfficiencies[i - numberOfTrays - 3],
@@ -140,6 +156,101 @@ export class UtilsService {
           liquidMolWeight: vapourMolWeight[i - numberOfTrays - 3],
           liquidViscosity: vapourViscosity[i - numberOfTrays - 3],
           surfaceTension: null,
+          additionalField1: null,
+          additionalField2: null,
+        });
+      } else if (i === numberOfTrays * 2 + 3) {
+        excelData.push({
+          trayNumber: null,
+          trayEfficiencies: null,
+          liquidTemp: null,
+          liquidMassFlow: null,
+          liquidVolFlow: null,
+          liquidMassDensity: null,
+          liquidMolWeight: null,
+          liquidViscosity: null,
+          surfaceTension: null,
+          additionalField1: null,
+          additionalField2: null,
+        });
+      } else if (i === numberOfTrays * 2 + 4) {
+        excelData.push({
+          trayNumber: "Feed Stream / Inlet Stage",
+          trayEfficiencies: "Vapour Fraction",
+          liquidTemp: "Temperature [C]",
+          liquidMassFlow: "Pressure [MPa]",
+          liquidVolFlow: "Molar Flow [kgmole/h]",
+          liquidMassDensity: "Mass Flow [kg/h]",
+          liquidMolWeight: "Heat Flow [MW]",
+          liquidViscosity: "Molecular Weight",
+          surfaceTension: "Mass Density [kg/m3]",
+          additionalField1: "Vapour Volume Flow [m3/h]",
+          additionalField2: "Liquid Volume Flow [m3/h]",
+        });
+      } else if (i > numberOfTrays * 2 + 4 && i <= numberOfTrays * 2 + 4 + feedStreams.length) {
+        let feedStream = feedStreams[i - (numberOfTrays * 2 + 5)];
+        let feedStagePair = streamStagePairFeed[i - (numberOfTrays * 2 + 5)];
+        let feedProperties = xlsxData.feedProperties[feedStream];
+        excelData.push({
+          trayNumber: feedStagePair,
+          trayEfficiencies: feedProperties["Vapour Fraction"],
+          liquidTemp: feedProperties["Temperature [C]"],
+          liquidMassFlow: feedProperties["Pressure [MPa]"],
+          liquidVolFlow: feedProperties["Molar Flow [kgmole/h]"],
+          liquidMassDensity: feedProperties["Mass Flow [kg/h]"],
+          liquidMolWeight: feedProperties["Heat Flow [MW]"],
+          liquidViscosity: feedProperties["Molecular Weight"],
+          surfaceTension: feedProperties["Mass Density [kg/m3]"],
+          additionalField1: feedProperties["Vapour Volume Flow [m3/h]"],
+          additionalField2: feedProperties["Liquid Volume Flow [m3/h]"],
+        });
+      } else if (i === numberOfTrays * 2 + 5 + feedStreams.length) {
+        excelData.push({
+          trayNumber: null,
+          trayEfficiencies: null,
+          liquidTemp: null,
+          liquidMassFlow: null,
+          liquidVolFlow: null,
+          liquidMassDensity: null,
+          liquidMolWeight: null,
+          liquidViscosity: null,
+          surfaceTension: null,
+          additionalField1: null,
+          additionalField2: null,
+        });
+      } else if (i === numberOfTrays * 2 + 6 + feedStreams.length) {
+        excelData.push({
+          trayNumber: "Draw Stream / Outlet Stage",
+          trayEfficiencies: "Vapour Fraction",
+          liquidTemp: "Temperature [C]",
+          liquidMassFlow: "Pressure [MPa]",
+          liquidVolFlow: "Molar Flow [kgmole/h]",
+          liquidMassDensity: "Mass Flow [kg/h]",
+          liquidMolWeight: "Heat Flow [MW]",
+          liquidViscosity: "Molecular Weight",
+          surfaceTension: "Mass Density [kg/m3]",
+          additionalField1: "Vapour Volume Flow [m3/h]",
+          additionalField2: "Liquid Volume Flow [m3/h]",
+        });
+      } else if (
+        i > numberOfTrays * 2 + 6 + feedStreams.length &&
+        i <= numberOfTrays * 2 + 6 + feedStreams.length + drawStreams.length
+      ) {
+        let drawStream = drawStreams[i - (numberOfTrays * 2 + 7 + feedStreams.length)];
+        let drawStagePair = streamStagePairDraw[i - (numberOfTrays * 2 + 7 + feedStreams.length)];
+        let drawProperties = xlsxData.drawProperties[drawStream];
+        excelData.push({
+          trayNumber: drawStagePair,
+          trayEfficiencies: drawProperties["Vapour Fraction"],
+          liquidTemp: drawProperties["Temperature [C]"],
+          liquidMassFlow: drawProperties["Pressure [MPa]"],
+          liquidVolFlow: drawProperties["Molar Flow [kgmole/h]"],
+          liquidMassDensity: drawProperties["Mass Flow [kg/h]"],
+          liquidMolWeight: drawProperties["Heat Flow [MW]"],
+          liquidViscosity: drawProperties["Molecular Weight"],
+          surfaceTension: drawProperties["Mass Density [kg/m3]"],
+          additionalField1: drawProperties["Vapour Volume Flow [m3/h]"],
+          additionalField2: drawProperties["Liquid Volume Flow [m3/h]"],
         });
       }
     }
