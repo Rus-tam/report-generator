@@ -1,3 +1,5 @@
+import { IHeatFlow } from "./heatFlow.interface";
+
 export interface ITxtData {
   colNumb: string;
   numberOfTrays: number;
@@ -22,5 +24,6 @@ export interface ITxtData {
   pressureList: number[];
   feedStages: {};
   drawStages: {};
+  heatFlow: IHeatFlow;
   internalExternalStr: {};
 }

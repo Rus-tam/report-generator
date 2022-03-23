@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs/promises";
 import { IFeedProductStreams } from "src/interfaces/feedProductStreams.interface";
+import { IHeatFlow } from "src/interfaces/heatFlow.interface";
 import { ITxtData } from "src/interfaces/txtData.interface";
 import { MainUtilsService } from "../utils/mainUtils.service";
 
@@ -60,7 +61,13 @@ export class TxtReaderService {
     const stateCond = this.stateConditions(lines, numberOfTrays);
     const physicalCond = this.physicalConditions(lines, numberOfTrays);
     const pressureList = this.pressureData(workingRangePress);
-    const { feedStages, drawStages } = this.feedProductStreams(lines, numberOfTrays, colNumb, isCondenser, isReboiler);
+    const { feedStages, drawStages, heatFlow } = this.feedProductStreams(
+      lines,
+      numberOfTrays,
+      colNumb,
+      isCondenser,
+      isReboiler,
+    );
     const internalExternalStr = this.internalExternalStreams(workingRangeInternalExternal);
 
     return {
@@ -72,6 +79,7 @@ export class TxtReaderService {
       pressureList,
       feedStages,
       drawStages,
+      heatFlow,
       internalExternalStr,
     };
   }
@@ -215,6 +223,12 @@ export class TxtReaderService {
     isCondenser: boolean,
     isReboiler: boolean,
   ): IFeedProductStreams {
+    let condenserHeat: string = "";
+    let reboilerHeat: string = "";
+    let heatFlow: IHeatFlow = {
+      condenserHeat,
+      reboilerHeat,
+    };
     const workingRange: string[] = [];
     let startPosition = 0;
     let endPosition = 0;
@@ -239,6 +253,18 @@ export class TxtReaderService {
     const splitedLines = this.utilsService.arrayElementSplit(workingRange, " ");
     const splitedLines1 = this.utilsService.arrayElementSplit(splitedLines, "__");
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines1);
+
+    // Определение тепловой нагрузки
+    if (isReboiler || isReboiler) {
+      for (let i = 0; i < filteredLines.length; i++) {
+        filteredLines[i] === "Condenser" ? (condenserHeat = filteredLines[i]) : (condenserHeat = "0");
+        filteredLines[i] === "Reboiler" ? (reboilerHeat = filteredLines[i]) : (reboilerHeat = "0");
+      }
+      heatFlow = {
+        condenserHeat,
+        reboilerHeat,
+      };
+    }
 
     // Дополнительная очистка рабочего участка текста
     for (let i = 0; i < filteredLines.length; i++) {
@@ -294,7 +320,7 @@ export class TxtReaderService {
       feedStages[`Boilup @${colNumb}`] = `${numberOfTrays}`;
     }
 
-    return { feedStages, drawStages };
+    return { feedStages, drawStages, heatFlow };
   }
 
   private internalExternalStreams(workingRange: string[]): {} {
