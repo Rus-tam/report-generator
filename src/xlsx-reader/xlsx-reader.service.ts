@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { TxtReaderService } from "src/txt-reader/txt-reader.service";
-import { MainUtilsService } from "src/utils/mainUtils.service";
-import { ITxtData } from "src/interfaces/txtData.interface";
+import { MainUtilsService } from "src/utils/main-utils.service";
+import { ITxtData } from "src/interfaces/txt-data.interface";
 import * as xlsx from "xlsx";
-import { IStreamComposition } from "src/interfaces/streamComposition.interface";
-import { IStreamProperty } from "src/interfaces/streamProperty.interface";
-import { IXlsxData } from "src/interfaces/xlsxData.interface";
-import { IStreamProp } from "src/interfaces/streamProp.interface";
+import { IStreamComposition } from "src/interfaces/stream-composition.interface";
+import { IStreamProperty } from "src/interfaces/stream-property.interface";
+import { IXlsxData } from "src/interfaces/xlsx-data.interface";
+import { IStreamProp } from "src/interfaces/stream-prop.interface";
 
 @Injectable()
 export class XlsxReaderService {

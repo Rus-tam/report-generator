@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { IJsonCreator } from "src/interfaces/jsonCreator.interface";
-import { IStreamProp } from "src/interfaces/streamProp.interface";
-import { ITxtData } from "src/interfaces/txtData.interface";
-import { IXlsxData } from "src/interfaces/xlsxData.interface";
+import { IJsonCreator } from "src/interfaces/json-creator.interface";
+import { IStreamProp } from "src/interfaces/stream-prop.interface";
+import { ITxtData } from "src/interfaces/txt-data.interface";
+import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 
 @Injectable()
 export class MainUtilsService {

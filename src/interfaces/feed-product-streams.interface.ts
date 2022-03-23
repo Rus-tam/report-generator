@@ -1,4 +1,4 @@
-import { IHeatFlow } from "./heatFlow.interface";
+import { IHeatFlow } from "./heat-flow.interface";
 
 export interface IFeedProductStreams {
   feedStages: {};

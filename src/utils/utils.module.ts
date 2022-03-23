@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { ExcelDataService } from "./excelData.service";
-import { MainUtilsService } from "./mainUtils.service";
+import { ExcelDataService } from "./excel-data.service";
+import { MainUtilsService } from "./main-utils.service";
 
 @Module({
   providers: [MainUtilsService, ExcelDataService],

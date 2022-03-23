@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import * as fs from "fs/promises";
-import { IFeedProductStreams } from "src/interfaces/feedProductStreams.interface";
-import { IHeatFlow } from "src/interfaces/heatFlow.interface";
-import { ITxtData } from "src/interfaces/txtData.interface";
-import { MainUtilsService } from "../utils/mainUtils.service";
+import { IFeedProductStreams } from "src/interfaces/feed-product-streams.interface";
+import { IHeatFlow } from "src/interfaces/heat-flow.interface";
+import { ITxtData } from "src/interfaces/txt-data.interface";
+import { MainUtilsService } from "../utils/main-utils.service";
 
 @Injectable()
 export class TxtReaderService {
@@ -223,11 +223,11 @@ export class TxtReaderService {
     isCondenser: boolean,
     isReboiler: boolean,
   ): IFeedProductStreams {
-    let condenserHeat: string = "";
-    let reboilerHeat: string = "";
+    let condenserHeat: string = "0";
+    let reboilerHeat: string = "0";
     let heatFlow: IHeatFlow = {
-      condenserHeat,
-      reboilerHeat,
+      condenserHeat: "0",
+      reboilerHeat: "0",
     };
     const workingRange: string[] = [];
     let startPosition = 0;
@@ -257,8 +257,8 @@ export class TxtReaderService {
     // Определение тепловой нагрузки
     if (isReboiler || isReboiler) {
       for (let i = 0; i < filteredLines.length; i++) {
-        filteredLines[i] === "Condenser" ? (condenserHeat = filteredLines[i]) : (condenserHeat = "0");
-        filteredLines[i] === "Reboiler" ? (reboilerHeat = filteredLines[i]) : (reboilerHeat = "0");
+        filteredLines[i] === "Condenser" ? (condenserHeat = filteredLines[i + 3]) : null;
+        filteredLines[i] === "Reboiler" ? (reboilerHeat = filteredLines[i + 3]) : null;
       }
       heatFlow = {
         condenserHeat,

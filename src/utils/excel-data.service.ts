@@ -1,8 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { IJsonCreator } from "src/interfaces/jsonCreator.interface";
-import { ITxtData } from "src/interfaces/txtData.interface";
-import { IXlsxData } from "src/interfaces/xlsxData.interface";
-import { MainUtilsService } from "./mainUtils.service";
+import { IJsonCreator } from "src/interfaces/json-creator.interface";
+import { IMainColumnInfo } from "src/interfaces/main-column-info.interface";
+import { IStreamProp } from "src/interfaces/stream-prop.interface";
+import { ITxtData } from "src/interfaces/txt-data.interface";
+import { IXlsxData } from "src/interfaces/xlsx-data.interface";
+import { MainUtilsService } from "./main-utils.service";
 
 @Injectable()
 export class ExcelDataService {
@@ -246,5 +248,52 @@ export class ExcelDataService {
     }
 
     return excelData;
+  }
+
+  // На данном этапе пользователь должен выбрать потоки питания колонны. Сделать дополнительную
+  // фильтрацию потоков на фронте
+  mainColumnData(txtData: ITxtData, xlsxData: IXlsxData, mainData: IMainColumnInfo) {
+    let isReboiler: boolean = false;
+    let isCondenser: boolean = false;
+    const workingStreams: string[] = [];
+    let topStageDrawStream: string = "";
+    let topStageDrawStreamProp: IStreamProp;
+    let bottomStageDrawStream: string = "";
+    let bottomStageDrawStreamProp: IStreamProp;
+
+    const { heatFlow, feedStages, drawStages, numberOfTrays } = txtData;
+    const { feedProperties, drawProperties } = xlsxData;
+    const { hotStream, coldStream } = mainData;
+
+    const feedStreams = this.mainUtils.objectKeyFinder(feedProperties);
+    const drawStreams = this.mainUtils.objectKeyFinder(drawProperties);
+
+    heatFlow.condenserHeat !== "0" ? (isCondenser = true) : null;
+    heatFlow.reboilerHeat !== "0" ? (isReboiler = true) : null;
+
+    console.log(drawStages);
+
+    // Определяем свойства потоков с верхней и нижней тарелок. Нужно для определения условий
+    // верхней и нижней тарелке.
+    if (isCondenser) {
+      topStageDrawStream = drawStreams.find((stream) => stream.includes("Condenser"));
+      topStageDrawStreamProp = drawProperties[topStageDrawStream];
+    } else {
+      for (let stream in drawStages) {
+        drawStages[stream] === "1" ? (topStageDrawStream = stream) : null;
+      }
+      topStageDrawStreamProp = drawProperties[topStageDrawStream];
+    }
+    if (isReboiler) {
+      bottomStageDrawStream = drawStreams.find((stream) => stream.includes("Reboiler"));
+      bottomStageDrawStreamProp = drawProperties[bottomStageDrawStream];
+    } else {
+      for (let stream in drawStages) {
+        drawStages[stream] === numberOfTrays.toString() ? (bottomStageDrawStream = stream) : null;
+      }
+      bottomStageDrawStreamProp = drawProperties[bottomStageDrawStream];
+    }
+
+    console.log(bottomStageDrawStreamProp);
   }
 }
