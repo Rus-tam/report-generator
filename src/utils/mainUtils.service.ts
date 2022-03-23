@@ -73,22 +73,22 @@ export class MainUtilsService {
   }
 
   // Округление до тысячных
-  rounded(num: number) {
-    return +num.toFixed(3);
+  rounded(value: number, number: number) {
+    return +value.toFixed(number);
   }
 
   // Округление данных в propData
   propDataRound(propData: IStreamProp) {
     return {
-      "Temperature [C]": this.rounded(propData["Temperature [C]"]),
-      "Pressure [MPa]": this.rounded(propData["Pressure [MPa]"]),
-      "Molar Flow [kgmole/h]": this.rounded(propData["Molar Flow [kgmole/h]"]),
-      "Mass Flow [kg/h]": this.rounded(propData["Mass Flow [kg/h]"]),
-      "Heat Flow [MW]": this.rounded(propData["Heat Flow [MW]"]),
-      "Molecular Weight": this.rounded(propData["Molecular Weight"]),
-      "Mass Density [kg/m3]": this.rounded(propData["Mass Density [kg/m3]"]),
-      "Vapour Volume Flow [m3/h]": this.rounded(propData["Vapour Volume Flow [m3/h]"]),
-      "Liquid Volume Flow [m3/h]": this.rounded(propData["Liquid Volume Flow [m3/h]"]),
+      "Temperature [C]": this.rounded(propData["Temperature [C]"], 3),
+      "Pressure [MPa]": this.rounded(propData["Pressure [MPa]"], 3),
+      "Molar Flow [kgmole/h]": this.rounded(propData["Molar Flow [kgmole/h]"], 3),
+      "Mass Flow [kg/h]": this.rounded(propData["Mass Flow [kg/h]"], 3),
+      "Heat Flow [MW]": this.rounded(propData["Heat Flow [MW]"], 3),
+      "Molecular Weight": this.rounded(propData["Molecular Weight"], 3),
+      "Mass Density [kg/m3]": this.rounded(propData["Mass Density [kg/m3]"], 3),
+      "Vapour Volume Flow [m3/h]": this.rounded(propData["Vapour Volume Flow [m3/h]"], 3),
+      "Liquid Volume Flow [m3/h]": this.rounded(propData["Liquid Volume Flow [m3/h]"], 3),
     };
   }
 }

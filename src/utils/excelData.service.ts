@@ -8,19 +8,9 @@ import { MainUtilsService } from "./mainUtils.service";
 export class ExcelDataService {
   constructor(public readonly mainUtils: MainUtilsService) {}
 
-  // Создаем json на основе данных из текстового документа
+  // Создаем json на основе данных из текстового документа для основной страницы
   mainJsonCreator(txtData: ITxtData, xlsxData: IXlsxData): IJsonCreator[] {
-    const {
-      colNumb,
-      numberOfTrays,
-      trayEfficiencies,
-      stateCond,
-      physicalCond,
-      pressureList,
-      feedStages,
-      drawStages,
-      internalExternalStr,
-    } = txtData;
+    const { numberOfTrays, trayEfficiencies, stateCond, physicalCond, feedStages, drawStages, ...rest } = txtData;
     const { liquidTemp, vapourTemp, liquidMassFlow, vapourMassFlow, liquidVolFlow, vapourVolFlow } = stateCond;
     const {
       liquidMolWeight,
@@ -204,6 +194,55 @@ export class ExcelDataService {
           additionalField2: drawProperties["Liquid Volume Flow [m3/h]"],
         });
       }
+    }
+
+    return excelData;
+  }
+
+  // Создаем json для страницы с составом потоков
+  componentJsonCreator(xlsxData: IXlsxData) {
+    const excelData = [];
+    const fractions = [];
+    let title = {};
+
+    const { feedCompositions, drawCompositions } = xlsxData;
+
+    const compositions = Object.assign({}, feedCompositions, drawCompositions);
+
+    const feedStreams = this.mainUtils.objectKeyFinder(xlsxData.feedProperties);
+    const drawStreams = this.mainUtils.objectKeyFinder(xlsxData.drawProperties);
+    const combinedStreams = ["Компоненты", ...feedStreams, ...drawStreams];
+    const streams = combinedStreams.filter(
+      (stream) =>
+        !stream.includes("Reflux") &&
+        !stream.includes("Condenser") &&
+        !stream.includes("Boilup") &&
+        !stream.includes("Reboiler"),
+    );
+
+    const components = this.mainUtils.objectKeyFinder(feedCompositions[feedStreams[0]]);
+
+    for (let component of components) {
+      let fracContainer = [];
+      for (let key in compositions) {
+        fracContainer.push(compositions[key][component]);
+      }
+      fractions.push([component, ...fracContainer]);
+    }
+
+    // Заполняем заголовок таблицы
+    for (let i = 0; i < streams.length; i++) {
+      title[i] = streams[i];
+    }
+    excelData.push(title);
+
+    // Заполняем значения для таблицы
+    for (let frac of fractions) {
+      title = {};
+      for (let i = 0; i < frac.length; i++) {
+        title[i] = frac[i];
+      }
+      excelData.push(title);
     }
 
     return excelData;

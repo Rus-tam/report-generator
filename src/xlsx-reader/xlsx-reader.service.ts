@@ -42,7 +42,7 @@ export class XlsxReaderService {
       molFraction = {};
       for (let obj of compositions) {
         if (obj[stream] >= 0.000001) {
-          molFraction[obj["__EMPTY"]] = obj[stream];
+          molFraction[obj["__EMPTY"]] = this.mainUtilsService.rounded(obj[stream], 4);
         } else if (obj[stream] === undefined) {
           null;
         } else {
@@ -113,7 +113,6 @@ export class XlsxReaderService {
       }
       streamProperties[stream] = this.mainUtilsService.propDataRound(propData);
     }
-    console.log(streamProperties);
     return streamProperties;
   }
 
@@ -129,7 +128,6 @@ export class XlsxReaderService {
     const { feedStages, drawStages, ...rest } = txtData;
     const feedProperties = this.streamPropertiesExtractor(feedStages, materialStreams);
     const drawProperties = this.streamPropertiesExtractor(drawStages, materialStreams);
-    console.log(feedProperties);
 
     return { feedProperties, drawProperties };
   }

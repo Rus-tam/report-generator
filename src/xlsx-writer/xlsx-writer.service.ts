@@ -33,14 +33,20 @@ export class XlsxWriterService {
       },
     ];
 
-    const excelData = this.excelDataService.mainJsonCreator(txtData, xlsxData);
+    const mainExcelData = this.excelDataService.mainJsonCreator(txtData, xlsxData);
+
+    const componentsExcelData = this.excelDataService.componentJsonCreator(xlsxData);
 
     try {
       let workBook = xlsx.utils.book_new();
-      const workSheet = xlsx.utils.json_to_sheet(excelData);
-      workSheet["!cols"] = colInfo;
-      workSheet["!rows"] = rowInfo;
-      xlsx.utils.book_append_sheet(workBook, workSheet, "Main Data");
+      const mainWorkSheet = xlsx.utils.json_to_sheet(mainExcelData);
+      const componentsWorkSheet = xlsx.utils.json_to_sheet(componentsExcelData);
+      mainWorkSheet["!cols"] = colInfo;
+      mainWorkSheet["!rows"] = rowInfo;
+      componentsWorkSheet["!cols"] = colInfo;
+      componentsWorkSheet["!rows"] = [{ hidden: true }];
+      xlsx.utils.book_append_sheet(workBook, mainWorkSheet, "Main Data");
+      xlsx.utils.book_append_sheet(workBook, componentsWorkSheet, "Components");
       xlsx.writeFile(workBook, "response.xlsx");
     } catch (e) {
       throw new BadRequestException("Закройте открытый файл Excel");
