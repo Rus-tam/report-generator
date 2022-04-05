@@ -65,11 +65,11 @@ export class MainUtilsService {
   }
 
   // Определяем значения объектов по ключам
-  objectValueFinder(obj: {}): number[] {
-    const values: number[] = [];
+  objectValueFinder(obj: {}): string[] {
+    const values: string[] = [];
     try {
       for (let key in obj) {
-        values.push(parseInt(obj[key]));
+        values.push(obj[key]);
       }
     } catch (e) {
       throw new NotFoundException("Не удается найти значение по ключу");
@@ -106,14 +106,24 @@ export class MainUtilsService {
     };
   }
 
-  flowRatesDefiner(tray: number, streamStages: {}, properties: {}) {
+  flowRatesDefiner(tray: string, streamStages: {}, properties: {}) {
     for (let key in streamStages) {
-      if (streamStages[key] === tray.toString()) {
+      if (streamStages[key] === tray) {
         return properties[key]["Mass Flow [kg/h]"];
       }
     }
+  }
 
-    // const propKeys = Object.keys(properties);
-    // console.log(propKeys);
+  trayEfficiensyRange(trayEfficiencies: string[]) {
+    let result: string;
+    let interval = [trayEfficiencies[0], 0];
+    for (let i = 0; i < trayEfficiencies.length + 1; i++) {
+      if (trayEfficiencies[i] === trayEfficiencies[i + 1]) {
+        interval[1] = trayEfficiencies[i];
+      } else {
+        interval[0] = trayEfficiencies[i];
+        interval[1] = trayEfficiencies[i + 1];
+      }
+    }
   }
 }

@@ -267,7 +267,7 @@ export class ExcelDataService {
     let drawRatesProfile: {}[] = [];
     let excelData: IReportExcelData[] = [];
 
-    const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList } = txtData;
+    const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList, trayEfficiencies } = txtData;
     const { feedProperties, drawProperties } = xlsxData;
     const { hotStream, coldStream } = mainData;
 
@@ -276,7 +276,13 @@ export class ExcelDataService {
     const feedStreams = this.mainUtils.objectKeyFinder(feedProperties);
     const drawStreams = this.mainUtils.objectKeyFinder(drawProperties);
 
-    const feedTrays = this.mainUtils.objectValueFinder(feedStages).sort((a, b) => a - b);
+    const feedTrays = this.mainUtils
+      .objectValueFinder(feedStages)
+      .sort((a: string, b: string) => parseInt(a) - parseInt(b));
+    const drawTrays = this.mainUtils.objectValueFinder(drawStages);
+
+    // КПД тарелок
+    // const trayEff =
 
     heatFlow.condenserHeat !== "0" ? (isCondenser = true) : null;
     heatFlow.reboilerHeat !== "0" ? (isReboiler = true) : null;
@@ -311,11 +317,11 @@ export class ExcelDataService {
     // Определяем давления, температуры, сырье и расходы для таблицы
     for (let tray of feedTrays) {
       let tempObj = {};
-      tempObj[tray] = `${stateCond.liquidTemp[tray - 1]} / ${stateCond.vapourTemp[tray - 1]}`;
+      tempObj[tray] = `${stateCond.liquidTemp[parseFloat(tray) - 1]} / ${stateCond.vapourTemp[parseFloat(tray) - 1]}`;
       temperatureProfile.push(tempObj);
 
       tempObj = {};
-      tempObj[tray] = `${pressureList[tray - 1]}`;
+      tempObj[tray] = `${pressureList[parseFloat(tray) - 1]}`;
       pressureProfile.push(tempObj);
 
       console.log(this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties));
@@ -323,6 +329,11 @@ export class ExcelDataService {
       tempObj = {};
       tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties)}`;
       feedRatesProfile.push(tempObj);
+    }
+    for (let tray of drawTrays) {
+      let tempObj = {};
+      tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, drawStages, drawProperties)}`;
+      drawRatesProfile.push(tempObj);
     }
 
     // Заполняем таблицу данными
@@ -371,6 +382,55 @@ export class ExcelDataService {
         Value: `${Object.values(feedRatesProfile[i])[0]}`,
       });
     }
+
+    for (let i = 0; i < drawRatesProfile.length; i++) {
+      if (i === 0) {
+        excelData.push({
+          Position: "4",
+          Parameters: "Продуктовые потоки, кг/ч",
+          Value: " ",
+        });
+      }
+      if (Object.keys(drawRatesProfile[i])[0] === "Condenser") {
+        excelData.push({
+          Position: " ",
+          Parameters: `С конденсатора`,
+          Value: `${Object.values(drawRatesProfile[i])[0]}`,
+        });
+      } else if (Object.keys(drawRatesProfile[i])[0] === "Reboiler") {
+        excelData.push({
+          Position: " ",
+          Parameters: `С ребойлера`,
+          Value: `${Object.values(drawRatesProfile[i])[0]}`,
+        });
+      } else {
+        excelData.push({
+          Position: " ",
+          Parameters: `${Object.keys(drawRatesProfile[i])[0]}`,
+          Value: `${Object.values(drawRatesProfile[i])[0]}`,
+        });
+      }
+    }
+    excelData.push({
+      Position: "5",
+      Parameters: "Тепловая нагрузка, МВт",
+      Value: " ",
+    });
+    excelData.push({
+      Position: " ",
+      Parameters: "-теплоотвод",
+      Value: heatFlow.condenserHeat,
+    });
+    excelData.push({
+      Position: " ",
+      Parameters: "-теплоподвод",
+      Value: heatFlow.reboilerHeat,
+    });
+    excelData.push({
+      Position: "6",
+      Parameters: "Принятый КПД контактных устройств",
+      Value: " ",
+    });
 
     console.log(excelData);
 
