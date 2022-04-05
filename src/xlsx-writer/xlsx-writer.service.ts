@@ -21,18 +21,19 @@ export class XlsxWriterService {
   async createXlsxFile(mainData: IMainColumnInfo) {
     const colInfo: IColWidth[] = [];
     let rowInfo = [];
+    let columnDataHeight = [];
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile();
-
-    for (let i = 0; i < 11; i++) {
-      colInfo.push({ wch: 30 });
-    }
 
     rowInfo = [
       {
         hidden: true,
       },
     ];
+
+    for (let i = 0; i < 11; i++) {
+      colInfo.push({ wch: 30 });
+    }
 
     const mainExcelData = this.excelDataService.mainJsonCreator(txtData, xlsxData);
 
@@ -44,12 +45,16 @@ export class XlsxWriterService {
       let workBook = xlsx.utils.book_new();
       const mainWorkSheet = xlsx.utils.json_to_sheet(mainExcelData);
       const componentsWorkSheet = xlsx.utils.json_to_sheet(componentsExcelData);
+      const mainColumnWorkSheet = xlsx.utils.json_to_sheet(mainColumnExcelData);
       mainWorkSheet["!cols"] = colInfo;
       mainWorkSheet["!rows"] = rowInfo;
       componentsWorkSheet["!cols"] = colInfo;
       componentsWorkSheet["!rows"] = [{ hidden: true }];
-      xlsx.utils.book_append_sheet(workBook, mainWorkSheet, "Main Data");
-      xlsx.utils.book_append_sheet(workBook, componentsWorkSheet, "Components");
+      mainColumnWorkSheet["!cols"] = colInfo;
+      mainColumnWorkSheet["!rows"] = [{ hidden: true }];
+      xlsx.utils.book_append_sheet(workBook, mainWorkSheet, "Для ВКУ");
+      xlsx.utils.book_append_sheet(workBook, componentsWorkSheet, "Состав");
+      xlsx.utils.book_append_sheet(workBook, mainColumnWorkSheet, "Отчет");
       xlsx.writeFile(workBook, "response.xlsx");
     } catch (e) {
       throw new BadRequestException("Закройте открытый файл Excel");

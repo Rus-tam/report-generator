@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { captureRejectionSymbol } from "events";
 import { IJsonCreator } from "src/interfaces/json-creator.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
@@ -51,7 +52,7 @@ export class MainUtilsService {
   }
 
   // Определить ключи элементов в объекте
-  objectKeyFinder(obj: {}) {
+  objectKeyFinder(obj: {}): string[] {
     const keys: string[] = [];
     try {
       for (let key in obj) {
@@ -61,6 +62,19 @@ export class MainUtilsService {
       throw new NotFoundException("Не удается найти ключи у объекта");
     }
     return keys;
+  }
+
+  // Определяем значения объектов по ключам
+  objectValueFinder(obj: {}): number[] {
+    const values: number[] = [];
+    try {
+      for (let key in obj) {
+        values.push(parseInt(obj[key]));
+      }
+    } catch (e) {
+      throw new NotFoundException("Не удается найти значение по ключу");
+    }
+    return values;
   }
 
   // Объеденяет название потока и номер его тарелки
@@ -90,5 +104,16 @@ export class MainUtilsService {
       "Vapour Volume Flow [m3/h]": this.rounded(propData["Vapour Volume Flow [m3/h]"], 3),
       "Liquid Volume Flow [m3/h]": this.rounded(propData["Liquid Volume Flow [m3/h]"], 3),
     };
+  }
+
+  flowRatesDefiner(tray: number, streamStages: {}, properties: {}) {
+    for (let key in streamStages) {
+      if (streamStages[key] === tray.toString()) {
+        return properties[key]["Mass Flow [kg/h]"];
+      }
+    }
+
+    // const propKeys = Object.keys(properties);
+    // console.log(propKeys);
   }
 }

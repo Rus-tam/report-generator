@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IJsonCreator } from "src/interfaces/json-creator.interface";
 import { IMainColumnInfo } from "src/interfaces/main-column-info.interface";
+import { IReportExcelData } from "src/interfaces/report-excel-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
@@ -260,18 +261,25 @@ export class ExcelDataService {
     let topStageDrawStreamProp: IStreamProp;
     let bottomStageDrawStream: string = "";
     let bottomStageDrawStreamProp: IStreamProp;
+    let temperatureProfile: {}[] = [];
+    let pressureProfile: {}[] = [];
+    let feedRatesProfile: {}[] = [];
+    let drawRatesProfile: {}[] = [];
+    let excelData: IReportExcelData[] = [];
 
-    const { heatFlow, feedStages, drawStages, numberOfTrays } = txtData;
+    const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList } = txtData;
     const { feedProperties, drawProperties } = xlsxData;
     const { hotStream, coldStream } = mainData;
+
+    console.log(feedStages);
 
     const feedStreams = this.mainUtils.objectKeyFinder(feedProperties);
     const drawStreams = this.mainUtils.objectKeyFinder(drawProperties);
 
+    const feedTrays = this.mainUtils.objectValueFinder(feedStages).sort((a, b) => a - b);
+
     heatFlow.condenserHeat !== "0" ? (isCondenser = true) : null;
     heatFlow.reboilerHeat !== "0" ? (isReboiler = true) : null;
-
-    console.log(drawStages);
 
     // Определяем свойства потоков с верхней и нижней тарелок. Нужно для определения условий
     // верхней и нижней тарелке.
@@ -294,6 +302,78 @@ export class ExcelDataService {
       bottomStageDrawStreamProp = drawProperties[bottomStageDrawStream];
     }
 
-    console.log(bottomStageDrawStreamProp);
+    excelData.push({
+      Position: "№",
+      Parameters: "Наименование параметра",
+      Value: "Значение параметра",
+    });
+
+    // Определяем давления, температуры, сырье и расходы для таблицы
+    for (let tray of feedTrays) {
+      let tempObj = {};
+      tempObj[tray] = `${stateCond.liquidTemp[tray - 1]} / ${stateCond.vapourTemp[tray - 1]}`;
+      temperatureProfile.push(tempObj);
+
+      tempObj = {};
+      tempObj[tray] = `${pressureList[tray - 1]}`;
+      pressureProfile.push(tempObj);
+
+      console.log(this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties));
+
+      tempObj = {};
+      tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties)}`;
+      feedRatesProfile.push(tempObj);
+    }
+
+    // Заполняем таблицу данными
+    for (let i = 0; i < pressureProfile.length; i++) {
+      if (i === 0) {
+        excelData.push({
+          Position: "1",
+          Parameters: "Давление, МПа",
+          Value: " ",
+        });
+      }
+
+      excelData.push({
+        Position: " ",
+        Parameters: `На ${Object.keys(pressureProfile[i])[0]} ступени`,
+        Value: `${Object.values(pressureProfile[i])[0]}`,
+      });
+    }
+
+    for (let i = 0; i < temperatureProfile.length; i++) {
+      if (i === 0) {
+        excelData.push({
+          Position: "2",
+          Parameters: "Температура жидк. / пара, град C",
+          Value: " ",
+        });
+      }
+      excelData.push({
+        Position: " ",
+        Parameters: `На ${Object.keys(temperatureProfile[i])[0]} ступени`,
+        Value: `${Object.values(temperatureProfile[i])[0]}`,
+      });
+    }
+
+    for (let i = 0; i < feedRatesProfile.length; i++) {
+      if (i === 0) {
+        excelData.push({
+          Position: "3",
+          Parameters: "Потоки питания, кг/ч",
+          Value: " ",
+        });
+      }
+      excelData.push({
+        Position: " ",
+        Parameters: `На ${Object.keys(feedRatesProfile[i])[0]} ступень`,
+        Value: `${Object.values(feedRatesProfile[i])[0]}`,
+      });
+    }
+
+    console.log(excelData);
+
+    return excelData;
   }
 }
