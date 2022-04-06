@@ -256,7 +256,6 @@ export class ExcelDataService {
   mainColumnData(txtData: ITxtData, xlsxData: IXlsxData) {
     let isReboiler: boolean = false;
     let isCondenser: boolean = false;
-    const workingStreams: string[] = [];
     let topStageDrawStream: string = "";
     let topStageDrawStreamProp: IStreamProp;
     let bottomStageDrawStream: string = "";
@@ -271,7 +270,6 @@ export class ExcelDataService {
     const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList, trayEfficiencies } = txtData;
     const { feedProperties, drawProperties } = xlsxData;
 
-    const feedStreams = this.mainUtils.objectKeyFinder(feedProperties);
     const drawStreams = this.mainUtils.objectKeyFinder(drawProperties);
 
     const feedTrays = this.mainUtils
@@ -405,7 +403,7 @@ export class ExcelDataService {
       } else {
         excelData.push({
           Position: " ",
-          Parameters: `${Object.keys(drawRatesProfile[i])[0]}`,
+          Parameters: `С ${Object.keys(drawRatesProfile[i])[0]} ступени`,
           Value: `${Object.values(drawRatesProfile[i])[0]}`,
         });
       }
