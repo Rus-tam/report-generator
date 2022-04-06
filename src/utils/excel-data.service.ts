@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { IJsonCreator } from "src/interfaces/json-creator.interface";
-import { IMainColumnInfo } from "src/interfaces/main-column-info.interface";
 import { IReportExcelData } from "src/interfaces/report-excel-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
@@ -253,7 +252,7 @@ export class ExcelDataService {
 
   // На данном этапе пользователь должен выбрать потоки питания колонны. Сделать дополнительную
   // фильтрацию потоков на фронте
-  mainColumnData(txtData: ITxtData, xlsxData: IXlsxData, mainData: IMainColumnInfo) {
+  mainColumnData(txtData: ITxtData, xlsxData: IXlsxData) {
     let isReboiler: boolean = false;
     let isCondenser: boolean = false;
     const workingStreams: string[] = [];
@@ -269,9 +268,6 @@ export class ExcelDataService {
 
     const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList, trayEfficiencies } = txtData;
     const { feedProperties, drawProperties } = xlsxData;
-    const { hotStream, coldStream } = mainData;
-
-    console.log(feedStages);
 
     const feedStreams = this.mainUtils.objectKeyFinder(feedProperties);
     const drawStreams = this.mainUtils.objectKeyFinder(drawProperties);
@@ -282,7 +278,7 @@ export class ExcelDataService {
     const drawTrays = this.mainUtils.objectValueFinder(drawStages);
 
     // КПД тарелок
-    // const trayEff =
+    const trayEff = this.mainUtils.trayEfficiensyRange(trayEfficiencies);
 
     heatFlow.condenserHeat !== "0" ? (isCondenser = true) : null;
     heatFlow.reboilerHeat !== "0" ? (isReboiler = true) : null;
@@ -323,8 +319,6 @@ export class ExcelDataService {
       tempObj = {};
       tempObj[tray] = `${pressureList[parseFloat(tray) - 1]}`;
       pressureProfile.push(tempObj);
-
-      console.log(this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties));
 
       tempObj = {};
       tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties)}`;
@@ -428,12 +422,9 @@ export class ExcelDataService {
     });
     excelData.push({
       Position: "6",
-      Parameters: "Принятый КПД контактных устройств",
-      Value: " ",
+      Parameters: "Принятый КПД ВКУ",
+      Value: `${trayEff}`,
     });
-
-    console.log(excelData);
-
     return excelData;
   }
 }

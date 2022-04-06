@@ -114,16 +114,13 @@ export class MainUtilsService {
     }
   }
 
-  trayEfficiensyRange(trayEfficiencies: string[]) {
-    let result: string;
-    let interval = [trayEfficiencies[0], 0];
-    for (let i = 0; i < trayEfficiencies.length + 1; i++) {
-      if (trayEfficiencies[i] === trayEfficiencies[i + 1]) {
-        interval[1] = trayEfficiencies[i];
-      } else {
-        interval[0] = trayEfficiencies[i];
-        interval[1] = trayEfficiencies[i + 1];
+  trayEfficiensyRange(trayEfficiencies: string[]): string[] {
+    let result: string[] = [trayEfficiencies[0]];
+    for (let i = 0; i < trayEfficiencies.length; i++) {
+      if (trayEfficiencies[i] !== result[result.length - 1]) {
+        result.push(trayEfficiencies[i]);
       }
     }
+    return result;
   }
 }

@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { IColWidth } from "src/interfaces/column-width.interface";
-import { IMainColumnInfo } from "src/interfaces/main-column-info.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { TxtReaderService } from "src/txt-reader/txt-reader.service";
@@ -18,7 +17,7 @@ export class XlsxWriterService {
     private readonly excelDataService: ExcelDataService,
   ) {}
 
-  async createXlsxFile(mainData: IMainColumnInfo) {
+  async createXlsxFile() {
     const colInfo: IColWidth[] = [];
     let rowInfo = [];
     let columnDataHeight = [];
@@ -39,7 +38,7 @@ export class XlsxWriterService {
 
     const componentsExcelData = this.excelDataService.componentJsonCreator(xlsxData);
 
-    const mainColumnExcelData = this.excelDataService.mainColumnData(txtData, xlsxData, mainData);
+    const mainColumnExcelData = this.excelDataService.mainColumnData(txtData, xlsxData);
 
     try {
       let workBook = xlsx.utils.book_new();
