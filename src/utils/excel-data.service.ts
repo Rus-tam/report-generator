@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { IJsonCreator } from "src/interfaces/json-creator.interface";
+import { ILiquidVapourLoad } from "src/interfaces/liquid-vapour-loads.interface";
 import { IReportExcelData } from "src/interfaces/report-excel-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
@@ -265,6 +266,7 @@ export class ExcelDataService {
     let feedRatesProfile: {}[] = [];
     let drawRatesProfile: {}[] = [];
     let excelData: IReportExcelData[] = [];
+    let efficiency: string = "";
 
     const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList, trayEfficiencies } = txtData;
     const { feedProperties, drawProperties } = xlsxData;
@@ -279,6 +281,9 @@ export class ExcelDataService {
 
     // КПД тарелок
     const trayEff = this.mainUtils.trayEfficiensyRange(trayEfficiencies);
+    trayEff.forEach((tray) => {
+      efficiency = efficiency + " " + tray.toString();
+    });
 
     heatFlow.condenserHeat !== "0" ? (isCondenser = true) : null;
     heatFlow.reboilerHeat !== "0" ? (isReboiler = true) : null;
@@ -423,8 +428,52 @@ export class ExcelDataService {
     excelData.push({
       Position: "6",
       Parameters: "Принятый КПД ВКУ",
-      Value: `${trayEff}`,
+      Value: efficiency,
     });
+    return excelData;
+  }
+
+  vapourLiquidLoads(txtData: ITxtData): ILiquidVapourLoad[] {
+    const { numberOfTrays, trayEfficiencies, stateCond, physicalCond } = txtData;
+    let excelData: ILiquidVapourLoad[] = [];
+
+    // Начинаем заполнять таблицу
+    excelData.push({
+      position: "№",
+      liquidTemp: "Т ж-ти, С",
+      vapourTemp: "Т газа, С",
+      liquidMassFlow: "Масс.расх.жидк., кг/ч",
+      vapourMassFlow: "Масс.расх.газ., кг/ч",
+      liquidVolFlow: "Объем.расх.жидк., м3/ч",
+      vapourVolFlow: "Объем.расх.газа., м3/ч",
+      liquidMolWeight: "Молекул.вес ж-ти",
+      vapourMolWeight: "Молекул.вес газа",
+      liquidMassDens: "Плотность ж-ти, кг/м3",
+      vapourMassDens: "Плотность газа, кг/м3",
+      liquidViscosity: "Вязкость ж-ти, сП",
+      vapourViscosity: "Вязкость газа, сП",
+      surfaceTension: "Пов.натяжение, дин/см",
+    });
+
+    for (let i = 0; i < numberOfTrays; i++) {
+      excelData.push({
+        position: i + 1,
+        liquidTemp: stateCond.liquidTemp[i],
+        vapourTemp: stateCond.vapourMassFlow[i],
+        liquidMassFlow: stateCond.liquidMassFlow[i],
+        vapourMassFlow: stateCond.vapourMassFlow[i],
+        liquidVolFlow: stateCond.liquidVolFlow[i],
+        vapourVolFlow: stateCond.vapourVolFlow[i],
+        liquidMolWeight: physicalCond.liquidMolWeight[i],
+        vapourMolWeight: physicalCond.vapourMolWeight[i],
+        liquidMassDens: physicalCond.liquidMassDensity[i],
+        vapourMassDens: physicalCond.vapourMassDensity[i],
+        liquidViscosity: physicalCond.liquidViscosity[i],
+        vapourViscosity: physicalCond.vapourViscosity[i],
+        surfaceTension: physicalCond.surfaceTension[i],
+      });
+    }
+
     return excelData;
   }
 }
