@@ -7,6 +7,7 @@ import { IStreamComposition } from "src/interfaces/stream-composition.interface"
 import { IStreamProperty } from "src/interfaces/stream-property.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
+import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 
 @Injectable()
 export class XlsxReaderService {
@@ -52,11 +53,12 @@ export class XlsxReaderService {
       streamComposition[stream] = molFraction;
     }
 
+    console.log(streamComposition);
     return streamComposition;
   }
 
   // Извлечение свойств потоков из экселевского документа
-  private streamPropertiesExtractor(stages: {}, properties: {}[]): {} {
+  private streamPropertiesExtractor(stages: {}, properties: {}[]): IStreamPropertyObj[] {
     const contents = [
       "Vapour Fraction",
       "Temperature [C]",
@@ -69,27 +71,17 @@ export class XlsxReaderService {
       "Vapour Volume Flow [m3/h]",
       "Liquid Volume Flow [m3/h]",
     ];
-    let propData: IStreamProp = {
-      "Temperature [C]": 0,
-      "Pressure [MPa]": 0,
-      "Molar Flow [kgmole/h]": 0,
-      "Mass Flow [kg/h]": 0,
-      "Heat Flow [MW]": 0,
-      "Molecular Weight": 0,
-      "Mass Density [kg/m3]": 0,
-      "Vapour Volume Flow [m3/h]": 0,
-      "Liquid Volume Flow [m3/h]": 0,
-    };
-    let streamProperties = {};
+    let streamProperties: IStreamPropertyObj[] = [];
     const streams = this.mainUtilsService.objectKeyFinder(stages);
 
-    // Из-за проблем с кодировкой заголовки строчей не прочитываются. Соответственно их нужно заменить
+    // Из-за проблем с кодировкой заголовки строчек не прочитываются. Соответственно их нужно заменить
     for (let i = 0; i < contents.length; i++) {
       properties[i]["__EMPTY"] = contents[i];
     }
 
     for (let stream of streams) {
-      propData = {
+      let tempStreamProp: IStreamPropertyObj = {};
+      let propData: IStreamProp = {
         "Temperature [C]": 0,
         "Pressure [MPa]": 0,
         "Molar Flow [kgmole/h]": 0,
@@ -100,6 +92,7 @@ export class XlsxReaderService {
         "Vapour Volume Flow [m3/h]": 0,
         "Liquid Volume Flow [m3/h]": 0,
       };
+      // Какая-то странная магия
       for (let obj of properties) {
         if (obj["__EMPTY"] === contents[9] && obj[stream] !== "<empty>") {
           propData[contents[9]] = obj[stream] * 3600;
@@ -111,8 +104,10 @@ export class XlsxReaderService {
           propData[obj["__EMPTY"]] = 0;
         }
       }
-      streamProperties[stream] = this.mainUtilsService.propDataRound(propData);
+      tempStreamProp[stream] = this.mainUtilsService.propDataRound(propData);
+      streamProperties.push(tempStreamProp);
     }
+
     return streamProperties;
   }
 

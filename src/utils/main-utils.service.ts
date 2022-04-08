@@ -22,7 +22,7 @@ export class MainUtilsService {
   // Применяет метод split к элементам массива
   arrayElementSplit(arr: string[], separator: string): string[] {
     const splitedArr = [];
-    const resultingArr = [];
+    const resultingArr: string[] = [];
     for (const elem of arr) {
       splitedArr.push(elem.split(separator));
     }
@@ -92,7 +92,7 @@ export class MainUtilsService {
   }
 
   // Округление данных в propData
-  propDataRound(propData: IStreamProp) {
+  propDataRound(propData: IStreamProp): IStreamProp {
     return {
       "Temperature [C]": this.rounded(propData["Temperature [C]"], 3),
       "Pressure [MPa]": this.rounded(propData["Pressure [MPa]"], 3),
@@ -106,7 +106,7 @@ export class MainUtilsService {
     };
   }
 
-  flowRatesDefiner(tray: string, streamStages: {}, properties: {}) {
+  flowRatesDefiner(tray: string, streamStages: {}, properties: {}): number {
     for (let key in streamStages) {
       if (streamStages[key] === tray) {
         return properties[key]["Mass Flow [kg/h]"];
