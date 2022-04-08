@@ -8,6 +8,7 @@ import { IStreamProperty } from "src/interfaces/stream-property.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
+import { IStreamCompositionExtr, IStreamMolFraction } from "src/interfaces/stream-compositions-extraction.interface";
 
 @Injectable()
 export class XlsxReaderService {
@@ -25,9 +26,8 @@ export class XlsxReaderService {
   }
 
   // Извлечение составов из экселевского документа
-  private streamCompositionExtractor(stages: {}, compositions: {}[]): {} {
-    let molFraction = {};
-    let streamComposition = {};
+  private streamCompositionExtractor(stages: {}, compositions: {}[]): IStreamCompositionExtr[] {
+    let streamComposition: IStreamCompositionExtr[] = [];
     const streams = this.mainUtilsService.objectKeyFinder(stages).filter((stream) => {
       if (
         !stream.includes("Reboiler") &&
@@ -40,7 +40,8 @@ export class XlsxReaderService {
     });
 
     for (let stream of streams) {
-      molFraction = {};
+      let molFraction: IStreamMolFraction = {};
+      let tempStreamComposition: IStreamCompositionExtr = {};
       for (let obj of compositions) {
         if (obj[stream] >= 0.000001) {
           molFraction[obj["__EMPTY"]] = this.mainUtilsService.rounded(obj[stream], 4);
@@ -50,10 +51,9 @@ export class XlsxReaderService {
           molFraction[obj["__EMPTY"]] = 0;
         }
       }
-      streamComposition[stream] = molFraction;
+      tempStreamComposition[stream] = molFraction;
+      streamComposition.push(tempStreamComposition);
     }
-
-    console.log(streamComposition);
     return streamComposition;
   }
 
