@@ -106,8 +106,9 @@ export class MainUtilsService {
     };
   }
 
-  flowRatesDefiner(tray: string, streamStages: {}, properties: {}): number {
+  flowRatesDefiner(tray: string, streamStages: {}, properties: {}) {
     for (let key in streamStages) {
+      console.log(properties[key]);
       if (streamStages[key] === tray) {
         return properties[key]["Mass Flow [kg/h]"];
       }

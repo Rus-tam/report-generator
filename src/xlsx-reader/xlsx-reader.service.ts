@@ -26,8 +26,8 @@ export class XlsxReaderService {
   }
 
   // Извлечение составов из экселевского документа
-  private streamCompositionExtractor(stages: {}, compositions: {}[]): IStreamCompositionExtr[] {
-    let streamComposition: IStreamCompositionExtr[] = [];
+  private streamCompositionExtractor(stages: {}, compositions: {}[]): IStreamCompositionExtr {
+    let streamComposition: IStreamCompositionExtr = {};
     const streams = this.mainUtilsService.objectKeyFinder(stages).filter((stream) => {
       if (
         !stream.includes("Reboiler") &&
@@ -41,7 +41,6 @@ export class XlsxReaderService {
 
     for (let stream of streams) {
       let molFraction: IStreamMolFraction = {};
-      let tempStreamComposition: IStreamCompositionExtr = {};
       for (let obj of compositions) {
         if (obj[stream] >= 0.000001) {
           molFraction[obj["__EMPTY"]] = this.mainUtilsService.rounded(obj[stream], 4);
@@ -51,14 +50,14 @@ export class XlsxReaderService {
           molFraction[obj["__EMPTY"]] = 0;
         }
       }
-      tempStreamComposition[stream] = molFraction;
-      streamComposition.push(tempStreamComposition);
+      streamComposition[stream] = molFraction;
     }
+
     return streamComposition;
   }
 
   // Извлечение свойств потоков из экселевского документа
-  private streamPropertiesExtractor(stages: {}, properties: {}[]): IStreamPropertyObj[] {
+  private streamPropertiesExtractor(stages: {}, properties: {}[]): IStreamPropertyObj {
     const contents = [
       "Vapour Fraction",
       "Temperature [C]",
@@ -71,7 +70,7 @@ export class XlsxReaderService {
       "Vapour Volume Flow [m3/h]",
       "Liquid Volume Flow [m3/h]",
     ];
-    let streamProperties: IStreamPropertyObj[] = [];
+    let streamProperties: IStreamPropertyObj = {};
     const streams = this.mainUtilsService.objectKeyFinder(stages);
 
     // Из-за проблем с кодировкой заголовки строчек не прочитываются. Соответственно их нужно заменить
@@ -80,7 +79,6 @@ export class XlsxReaderService {
     }
 
     for (let stream of streams) {
-      let tempStreamProp: IStreamPropertyObj = {};
       let propData: IStreamProp = {
         "Temperature [C]": 0,
         "Pressure [MPa]": 0,
@@ -104,8 +102,7 @@ export class XlsxReaderService {
           propData[obj["__EMPTY"]] = 0;
         }
       }
-      tempStreamProp[stream] = this.mainUtilsService.propDataRound(propData);
-      streamProperties.push(tempStreamProp);
+      streamProperties[stream] = this.mainUtilsService.propDataRound(propData);
     }
 
     return streamProperties;
