@@ -4,7 +4,6 @@ import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { TxtReaderService } from "src/txt-reader/txt-reader.service";
 import { ExcelDataService } from "src/utils/excel-data.service";
-import { MainUtilsService } from "src/utils/main-utils.service";
 import { XlsxReaderService } from "src/xlsx-reader/xlsx-reader.service";
 import * as xlsx from "xlsx";
 
@@ -13,7 +12,6 @@ export class XlsxWriterService {
   constructor(
     private readonly txtReaderService: TxtReaderService,
     private readonly xlsxReaderService: XlsxReaderService,
-    private readonly utilsService: MainUtilsService,
     private readonly excelDataService: ExcelDataService,
   ) {}
 
@@ -21,7 +19,6 @@ export class XlsxWriterService {
     const colInfo: IColWidth[] = [];
     const colInfoLoads: IColWidth[] = [];
     let rowInfo = [];
-    let columnDataHeight = [];
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile();
 
@@ -40,9 +37,9 @@ export class XlsxWriterService {
 
     const componentsExcelData = this.excelDataService.componentJsonCreator(xlsxData);
 
-    const mainColumnExcelData = this.excelDataService.mainColumnData(txtData, xlsxData);
+    const mainColumnExcelData = this.excelDataService.mainColumnJsonCreater(txtData, xlsxData);
 
-    const vapourLiquidLoad = this.excelDataService.vapourLiquidLoads(txtData);
+    const vapourLiquidLoad = this.excelDataService.vapourLiquidJsonCreator(txtData);
 
     try {
       let workBook = xlsx.utils.book_new();

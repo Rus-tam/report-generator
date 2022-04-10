@@ -80,6 +80,7 @@ export class XlsxReaderService {
 
     for (let stream of streams) {
       let propData: IStreamProp = {
+        "Vapour Fraction": 0,
         "Temperature [C]": 0,
         "Pressure [MPa]": 0,
         "Molar Flow [kgmole/h]": 0,

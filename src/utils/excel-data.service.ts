@@ -253,7 +253,7 @@ export class ExcelDataService {
 
   // На данном этапе пользователь должен выбрать потоки питания колонны. Сделать дополнительную
   // фильтрацию потоков на фронте
-  mainColumnData(txtData: ITxtData, xlsxData: IXlsxData) {
+  mainColumnJsonCreater(txtData: ITxtData, xlsxData: IXlsxData) {
     let isReboiler: boolean = false;
     let isCondenser: boolean = false;
     let topStageDrawStream: string = "";
@@ -431,7 +431,7 @@ export class ExcelDataService {
     return excelData;
   }
 
-  vapourLiquidLoads(txtData: ITxtData): ILiquidVapourLoad[] {
+  vapourLiquidJsonCreator(txtData: ITxtData): ILiquidVapourLoad[] {
     const { numberOfTrays, trayEfficiencies, stateCond, physicalCond } = txtData;
     let excelData: ILiquidVapourLoad[] = [];
 

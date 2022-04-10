@@ -1,4 +1,5 @@
 export interface IStreamProp {
+  "Vapour Fraction": number;
   "Temperature [C]": number;
   "Pressure [MPa]": number;
   "Molar Flow [kgmole/h]": number;

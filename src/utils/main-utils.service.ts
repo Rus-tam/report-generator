@@ -1,9 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { captureRejectionSymbol } from "events";
-import { IJsonCreator } from "src/interfaces/json-creator.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
-import { ITxtData } from "src/interfaces/txt-data.interface";
-import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 
 @Injectable()
 export class MainUtilsService {
@@ -94,6 +90,7 @@ export class MainUtilsService {
   // Округление данных в propData
   propDataRound(propData: IStreamProp): IStreamProp {
     return {
+      "Vapour Fraction": this.rounded(propData["Vapour Fraction"], 3),
       "Temperature [C]": this.rounded(propData["Temperature [C]"], 3),
       "Pressure [MPa]": this.rounded(propData["Pressure [MPa]"], 3),
       "Molar Flow [kgmole/h]": this.rounded(propData["Molar Flow [kgmole/h]"], 3),
