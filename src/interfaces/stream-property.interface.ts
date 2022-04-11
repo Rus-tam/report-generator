@@ -1,4 +1,6 @@
+import { IStreamPropertyObj } from "./streams-properties-obj.interface";
+
 export interface IStreamProperty {
-  feedProperties: {};
-  drawProperties: {};
+  feedProperties: IStreamPropertyObj;
+  drawProperties: IStreamPropertyObj;
 }

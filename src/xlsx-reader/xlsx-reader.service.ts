@@ -24,7 +24,7 @@ export class XlsxReaderService {
     const { feedProperties, drawProperties } = this.streamProperties(materialStreams, txtData);
     const allStreams = this.getAllStreams(materialStreams);
 
-    return { feedCompositions, drawCompositions, feedProperties, drawProperties };
+    return { feedCompositions, drawCompositions, feedProperties, drawProperties, allStreams };
   }
 
   // Извлечение составов из экселевского документа
