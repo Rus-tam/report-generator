@@ -14,6 +14,7 @@ import { IStages } from "src/interfaces/stages.interface";
 @Injectable()
 export class XlsxReaderService {
   constructor(private readonly txtReaderService: TxtReaderService, private mainUtilsService: MainUtilsService) {}
+
   async parseXlsxFile(): Promise<IXlsxData> {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const workbook = xlsx.readFile("src/files/streams.xlsx");
