@@ -3,6 +3,7 @@ import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { TxtReaderService } from "src/txt-reader/txt-reader.service";
 import { XlsxReaderService } from "src/xlsx-reader/xlsx-reader.service";
+import { AddStreamDto } from "./dto/add-stream.dto";
 import { XlsxWriterService } from "./xlsx-writer.service";
 
 @Controller("xlsx-writer")
@@ -22,7 +23,7 @@ export class XlsxWriterController {
   }
 
   @Post()
-  createExcelFile() {
-    this.xlsxWriterService.createXlsxFile();
+  createExcelFile(@Body() additionalStreams: AddStreamDto) {
+    this.xlsxWriterService.createXlsxFile(additionalStreams);
   }
 }

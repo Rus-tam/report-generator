@@ -6,6 +6,7 @@ import { TxtReaderService } from "src/txt-reader/txt-reader.service";
 import { ExcelDataService } from "src/utils/excel-data.service";
 import { XlsxReaderService } from "src/xlsx-reader/xlsx-reader.service";
 import * as xlsx from "xlsx";
+import { AddStreamDto } from "./dto/add-stream.dto";
 
 @Injectable()
 export class XlsxWriterService {
@@ -15,14 +16,13 @@ export class XlsxWriterService {
     private readonly excelDataService: ExcelDataService,
   ) {}
 
-  async createXlsxFile() {
+  async createXlsxFile(additionalStreams: AddStreamDto) {
     const colInfo: IColWidth[] = [];
     const colInfoLoads: IColWidth[] = [];
-    let rowInfo = [];
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile();
 
-    rowInfo = [
+    let rowInfo = [
       {
         hidden: true,
       },
@@ -33,7 +33,7 @@ export class XlsxWriterService {
       colInfoLoads.push({ wch: 22 });
     }
 
-    const mainExcelData = this.excelDataService.mainJsonCreator(txtData, xlsxData);
+    const mainExcelData = this.excelDataService.mainJsonCreator(txtData, xlsxData, additionalStreams);
 
     const componentsExcelData = this.excelDataService.componentJsonCreator(xlsxData);
 

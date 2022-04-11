@@ -3,8 +3,10 @@ import { IJsonCreator } from "src/interfaces/json-creator.interface";
 import { ILiquidVapourLoad } from "src/interfaces/liquid-vapour-loads.interface";
 import { IReportExcelData } from "src/interfaces/report-excel-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
+import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
+import { AddStreamDto } from "src/xlsx-writer/dto/add-stream.dto";
 import { MainUtilsService } from "./main-utils.service";
 
 @Injectable()
@@ -12,7 +14,8 @@ export class ExcelDataService {
   constructor(public readonly mainUtils: MainUtilsService) {}
 
   // Создаем json на основе данных из текстового документа для основной страницы
-  mainJsonCreator(txtData: ITxtData, xlsxData: IXlsxData): IJsonCreator[] {
+  mainJsonCreator(txtData: ITxtData, xlsxData: IXlsxData, additionalStreams: AddStreamDto): IJsonCreator[] {
+    let { addFeedStreams, addDrawStreams } = additionalStreams;
     const { numberOfTrays, trayEfficiencies, stateCond, physicalCond, feedStages, drawStages, ...rest } = txtData;
     const { liquidTemp, vapourTemp, liquidMassFlow, vapourMassFlow, liquidVolFlow, vapourVolFlow } = stateCond;
     const {
@@ -24,10 +27,20 @@ export class ExcelDataService {
       vapourViscosity,
       surfaceTension,
     } = physicalCond;
+
+    // Убираем пустые массивы
+    addFeedStreams = addFeedStreams.filter((stream) => stream.length !== 0);
+    addDrawStreams = addDrawStreams.filter((stream) => stream.length !== 0);
+
+    let feedProp: IStreamPropertyObj = xlsxData.feedProperties;
+    let drawProp: IStreamPropertyObj = xlsxData.drawProperties;
+
     const excelData: IJsonCreator[] = [];
 
-    const feedStreams = this.mainUtils.objectKeyFinder(xlsxData.feedProperties);
-    const drawStreams = this.mainUtils.objectKeyFinder(xlsxData.drawProperties);
+    let feedStreams = [...this.mainUtils.objectKeyFinder(feedProp), ...addFeedStreams];
+    let drawStreams = [...this.mainUtils.objectKeyFinder(drawProp), ...addDrawStreams];
+
+    console.log(drawStreams);
 
     const streamStagePairFeed = this.mainUtils.streamStagePairMaker(feedStages, feedStreams);
     const streamStagePairDraw = this.mainUtils.streamStagePairMaker(drawStages, drawStreams);
