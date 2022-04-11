@@ -9,6 +9,7 @@ import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 import { IStreamCompositionExtr, IStreamMolFraction } from "src/interfaces/stream-compositions-extraction.interface";
+import { IStages } from "src/interfaces/stages.interface";
 
 @Injectable()
 export class XlsxReaderService {
@@ -16,17 +17,18 @@ export class XlsxReaderService {
   async parseXlsxFile(): Promise<IXlsxData> {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const workbook = xlsx.readFile("src/files/streams.xlsx");
-    const compositions: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
-    const materialStreams: {}[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
+    const compositions: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
+    const materialStreams: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 
     const { feedCompositions, drawCompositions } = this.streamCompositions(compositions, txtData);
     const { feedProperties, drawProperties } = this.streamProperties(materialStreams, txtData);
+    const allStreams = this.getAllStreams(materialStreams);
 
     return { feedCompositions, drawCompositions, feedProperties, drawProperties };
   }
 
   // Извлечение составов из экселевского документа
-  private streamCompositionExtractor(stages: {}, compositions: {}[]): IStreamCompositionExtr {
+  private streamCompositionExtractor(stages: IStages, compositions: {}[]): IStreamCompositionExtr {
     let streamComposition: IStreamCompositionExtr = {};
     const streams = this.mainUtilsService.objectKeyFinder(stages).filter((stream) => {
       if (
@@ -57,7 +59,7 @@ export class XlsxReaderService {
   }
 
   // Извлечение свойств потоков из экселевского документа
-  private streamPropertiesExtractor(stages: {}, properties: {}[]): IStreamPropertyObj {
+  private streamPropertiesExtractor(stages: IStages, properties: {}[]): IStreamPropertyObj {
     const contents = [
       "Vapour Fraction",
       "Temperature [C]",
@@ -109,7 +111,7 @@ export class XlsxReaderService {
     return streamProperties;
   }
 
-  private streamCompositions(compositions: {}[], txtData: ITxtData): IStreamComposition {
+  private streamCompositions(compositions: IStages[], txtData: ITxtData): IStreamComposition {
     const { feedStages, drawStages, ...rest } = txtData;
     const drawCompositions = this.streamCompositionExtractor(drawStages, compositions);
     const feedCompositions = this.streamCompositionExtractor(feedStages, compositions);
@@ -117,11 +119,20 @@ export class XlsxReaderService {
     return { feedCompositions, drawCompositions };
   }
 
-  private streamProperties(materialStreams: {}[], txtData: ITxtData): IStreamProperty {
+  private streamProperties(materialStreams: IStages[], txtData: ITxtData): IStreamProperty {
     const { feedStages, drawStages, ...rest } = txtData;
     const feedProperties = this.streamPropertiesExtractor(feedStages, materialStreams);
     const drawProperties = this.streamPropertiesExtractor(drawStages, materialStreams);
 
     return { feedProperties, drawProperties };
+  }
+
+  private getAllStreams(materialStreams: IStages[]): string[] {
+    let allStreams = Object.keys(materialStreams[0]);
+
+    allStreams = allStreams.filter((stream) => stream !== "__EMPTY");
+    allStreams = allStreams.filter((stream) => stream !== "\x1548=8FK");
+
+    return allStreams;
   }
 }
