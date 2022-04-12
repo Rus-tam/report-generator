@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 
 @Injectable()
@@ -62,7 +62,11 @@ export class MainUtilsService {
 
   // Округление до тысячных
   rounded(value: number, number: number) {
-    return +value.toFixed(number);
+    try {
+      return +value.toFixed(number);
+    } catch (e) {
+      throw new BadRequestException("Не удается округлить значение");
+    }
   }
 
   // Округление данных в propData

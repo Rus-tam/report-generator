@@ -255,7 +255,7 @@ export class TxtReaderService {
     const filteredLines = this.utilsService.deleteEmptyElements(splitedLines1);
 
     // Определение тепловой нагрузки
-    if (isReboiler || isReboiler) {
+    if (isCondenser || isReboiler) {
       for (let i = 0; i < filteredLines.length; i++) {
         filteredLines[i] === "Condenser" ? (condenserHeat = filteredLines[i + 3]) : null;
         filteredLines[i] === "Reboiler" ? (reboilerHeat = filteredLines[i + 3]) : null;
@@ -310,7 +310,7 @@ export class TxtReaderService {
       }
     }
 
-    // Добавляем потоки потоки ребойлера и конденсатора из внутренней схемы
+    // Добавляем потоки ребойлера и конденсатора из внутренней схемы
     if (isCondenser) {
       drawStages[`To Condenser @${colNumb}`] = "1";
       feedStages[`Reflux @${colNumb}`] = "1";

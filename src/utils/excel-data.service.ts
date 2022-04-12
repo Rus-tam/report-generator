@@ -438,7 +438,7 @@ export class ExcelDataService {
   }
 
   vapourLiquidJsonCreator(txtData: ITxtData): ILiquidVapourLoad[] {
-    const { numberOfTrays, trayEfficiencies, stateCond, physicalCond } = txtData;
+    const { numberOfTrays, stateCond, physicalCond } = txtData;
     let excelData: ILiquidVapourLoad[] = [];
 
     // Начинаем заполнять таблицу
