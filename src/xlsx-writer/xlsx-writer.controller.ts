@@ -15,6 +15,7 @@ export class XlsxWriterController {
   ) {}
 
   @Get()
+  @HttpCode(200)
   async getAllData(): Promise<{ txtData: ITxtData; excelData: IXlsxData }> {
     try {
       let additionalStreams: AddStreamDto = {
