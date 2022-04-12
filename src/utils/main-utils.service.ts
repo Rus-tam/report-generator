@@ -47,32 +47,6 @@ export class MainUtilsService {
     return workingRange;
   }
 
-  // Определить ключи элементов в объекте
-  objectKeyFinder(obj: {}): string[] {
-    const keys: string[] = [];
-    try {
-      for (let key in obj) {
-        keys.push(key);
-      }
-    } catch (e) {
-      throw new NotFoundException("Не удается найти ключи у объекта");
-    }
-    return keys;
-  }
-
-  // Определяем значения объектов по ключам
-  objectValueFinder(obj: {}): string[] {
-    const values: string[] = [];
-    try {
-      for (let key in obj) {
-        values.push(obj[key]);
-      }
-    } catch (e) {
-      throw new NotFoundException("Не удается найти значение по ключу");
-    }
-    return values;
-  }
-
   // Объеденяет название потока и номер его тарелки
   streamStagePairMaker(stages: {}, streams: string[]): string[] {
     const streamStagePair: string[] = [];

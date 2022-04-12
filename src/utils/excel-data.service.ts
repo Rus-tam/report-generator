@@ -220,8 +220,8 @@ export class ExcelDataService {
 
     const compositions = Object.assign({}, feedCompositions, drawCompositions);
 
-    const feedStreams = this.mainUtils.objectKeyFinder(xlsxData.feedProperties);
-    const drawStreams = this.mainUtils.objectKeyFinder(xlsxData.drawProperties);
+    const feedStreams = Object.keys(xlsxData.feedProperties);
+    const drawStreams = Object.keys(xlsxData.drawProperties);
     const combinedStreams = ["Компоненты", ...feedStreams, ...drawStreams];
     const streams = combinedStreams.filter(
       (stream) =>
@@ -231,7 +231,7 @@ export class ExcelDataService {
         !stream.includes("Reboiler"),
     );
 
-    const components = this.mainUtils.objectKeyFinder(feedCompositions[feedStreams[0]]);
+    const components = Object.keys(feedCompositions[feedStreams[0]]);
 
     for (let component of components) {
       let fracContainer = [];
@@ -278,12 +278,10 @@ export class ExcelDataService {
     const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList, trayEfficiencies } = txtData;
     const { feedProperties, drawProperties } = xlsxData;
 
-    const drawStreams = this.mainUtils.objectKeyFinder(drawProperties);
+    const drawStreams = Object.keys(drawProperties);
 
-    const feedTrays = this.mainUtils
-      .objectValueFinder(feedStages)
-      .sort((a: string, b: string) => parseInt(a) - parseInt(b));
-    const drawTrays = this.mainUtils.objectValueFinder(drawStages);
+    const feedTrays = Object.values(feedStages).sort((a: string, b: string) => parseInt(a) - parseInt(b));
+    const drawTrays = Object.values(drawStages);
 
     // КПД тарелок
     const trayEff = this.mainUtils.trayEfficiensyRange(trayEfficiencies);
