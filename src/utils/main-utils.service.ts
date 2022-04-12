@@ -83,7 +83,6 @@ export class MainUtilsService {
         streamStagePair.push(`${stream} / Дополнительный поток`);
       }
     }
-    console.log(streamStagePair);
     return streamStagePair;
   }
 

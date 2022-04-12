@@ -16,7 +16,11 @@ export class XlsxWriterController {
 
   @Get()
   async getAllData(): Promise<{ txtData: ITxtData; excelData: IXlsxData }> {
-    const excelData = await this.xlsReaderService.parseXlsxFile();
+    let additionalStreams: AddStreamDto = {
+      addFeedStreams: [],
+      addDrawStreams: [],
+    };
+    const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams);
     const txtData = await this.txtDataService.parseTXTFile();
 
     return { txtData, excelData };

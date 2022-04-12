@@ -20,7 +20,7 @@ export class XlsxWriterService {
     const colInfo: IColWidth[] = [];
     const colInfoLoads: IColWidth[] = [];
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
-    const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile();
+    const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile(additionalStreams);
 
     let rowInfo = [
       {
@@ -33,7 +33,7 @@ export class XlsxWriterService {
       colInfoLoads.push({ wch: 22 });
     }
 
-    const mainExcelData = this.excelDataService.mainJsonCreator(txtData, xlsxData, additionalStreams);
+    const mainExcelData = this.excelDataService.mainJsonCreator(txtData, xlsxData);
 
     const componentsExcelData = this.excelDataService.componentJsonCreator(xlsxData);
 

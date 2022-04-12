@@ -14,8 +14,7 @@ export class ExcelDataService {
   constructor(public readonly mainUtils: MainUtilsService) {}
 
   // Создаем json на основе данных из текстового документа для основной страницы
-  mainJsonCreator(txtData: ITxtData, xlsxData: IXlsxData, additionalStreams: AddStreamDto): IJsonCreator[] {
-    let { addFeedStreams, addDrawStreams } = additionalStreams;
+  mainJsonCreator(txtData: ITxtData, xlsxData: IXlsxData): IJsonCreator[] {
     const { numberOfTrays, trayEfficiencies, stateCond, physicalCond, feedStages, drawStages, ...rest } = txtData;
     const { liquidTemp, vapourTemp, liquidMassFlow, vapourMassFlow, liquidVolFlow, vapourVolFlow } = stateCond;
     const {
@@ -28,17 +27,15 @@ export class ExcelDataService {
       surfaceTension,
     } = physicalCond;
 
-    // Убираем пустые массивы
-    addFeedStreams = addFeedStreams.filter((stream) => stream.length !== 0);
-    addDrawStreams = addDrawStreams.filter((stream) => stream.length !== 0);
-
     let feedProp: IStreamPropertyObj = xlsxData.feedProperties;
     let drawProp: IStreamPropertyObj = xlsxData.drawProperties;
 
     const excelData: IJsonCreator[] = [];
 
-    let feedStreams = [...this.mainUtils.objectKeyFinder(feedProp), ...addFeedStreams];
-    let drawStreams = [...this.mainUtils.objectKeyFinder(drawProp), ...addDrawStreams];
+    // let feedStreams = [...this.mainUtils.objectKeyFinder(feedProp), ...addFeedStreams];
+    // let drawStreams = [...this.mainUtils.objectKeyFinder(drawProp), ...addDrawStreams];
+    let feedStreams = Object.keys(feedProp);
+    let drawStreams = Object.keys(drawProp);
 
     const streamStagePairFeed = this.mainUtils.streamStagePairMaker(feedStages, feedStreams);
     const streamStagePairDraw = this.mainUtils.streamStagePairMaker(drawStages, drawStreams);

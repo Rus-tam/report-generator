@@ -10,16 +10,19 @@ import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 import { IStreamCompositionExtr, IStreamMolFraction } from "src/interfaces/stream-compositions-extraction.interface";
 import { IStages } from "src/interfaces/stages.interface";
+import { AddStreamDto } from "src/xlsx-writer/dto/add-stream.dto";
 
 @Injectable()
 export class XlsxReaderService {
   constructor(private readonly txtReaderService: TxtReaderService, private mainUtilsService: MainUtilsService) {}
 
-  async parseXlsxFile(): Promise<IXlsxData> {
+  async parseXlsxFile(additionalStreams: AddStreamDto): Promise<IXlsxData> {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const { feedStages, drawStages, ...rest } = txtData;
-    let feedStreams = Object.keys(feedStages);
-    let drawStreams = Object.keys(drawStages);
+    const addFeedStreams = additionalStreams.addFeedStreams.filter((stream) => stream.length !== 0);
+    const addDrawStreams = additionalStreams.addDrawStreams.filter((stream) => stream.length !== 0);
+    let feedStreams = [...Object.keys(feedStages), ...addFeedStreams];
+    let drawStreams = [...Object.keys(drawStages), ...addDrawStreams];
 
     const workbook = xlsx.readFile("src/files/streams.xlsx");
     const compositions: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);

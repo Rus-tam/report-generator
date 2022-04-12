@@ -1,12 +1,5 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Post } from "@nestjs/common";
 import { XlsxReaderService } from "./xlsx-reader.service";
 
 @Controller("xlsx-reader")
-export class XlsxReaderController {
-  constructor(private readonly xlsxReaderService: XlsxReaderService) {}
-
-  @Get()
-  async readXlsxFile() {
-    await this.xlsxReaderService.parseXlsxFile();
-  }
-}
+export class XlsxReaderController {}
