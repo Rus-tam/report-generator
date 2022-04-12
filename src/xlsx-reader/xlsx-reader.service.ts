@@ -17,21 +17,25 @@ export class XlsxReaderService {
 
   async parseXlsxFile(): Promise<IXlsxData> {
     const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
+    const { feedStages, drawStages, ...rest } = txtData;
+    let feedStreams = Object.keys(feedStages);
+    let drawStreams = Object.keys(drawStages);
+
     const workbook = xlsx.readFile("src/files/streams.xlsx");
     const compositions: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
     const materialStreams: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 
-    const { feedCompositions, drawCompositions } = this.streamCompositions(compositions, txtData);
-    const { feedProperties, drawProperties } = this.streamProperties(materialStreams, txtData);
+    const { feedCompositions, drawCompositions } = this.streamCompositions(compositions, feedStreams, drawStreams);
+    const { feedProperties, drawProperties } = this.streamProperties(materialStreams, feedStreams, drawStreams);
     const allStreams = this.getAllStreams(materialStreams);
 
     return { feedCompositions, drawCompositions, feedProperties, drawProperties, allStreams };
   }
 
   // Извлечение составов из экселевского документа
-  private streamCompositionExtractor(stages: IStages, compositions: {}[]): IStreamCompositionExtr {
+  private streamCompositionExtractor(streams: string[], compositions: {}[]): IStreamCompositionExtr {
     let streamComposition: IStreamCompositionExtr = {};
-    const streams = this.mainUtilsService.objectKeyFinder(stages).filter((stream) => {
+    streams = streams.filter((stream) => {
       if (
         !stream.includes("Reboiler") &&
         !stream.includes("Condenser") &&
@@ -60,7 +64,7 @@ export class XlsxReaderService {
   }
 
   // Извлечение свойств потоков из экселевского документа
-  private streamPropertiesExtractor(stages: IStages, properties: {}[]): IStreamPropertyObj {
+  private streamPropertiesExtractor(streams: string[], properties: {}[]): IStreamPropertyObj {
     const contents = [
       "Vapour Fraction",
       "Temperature [C]",
@@ -74,7 +78,6 @@ export class XlsxReaderService {
       "Liquid Volume Flow [m3/h]",
     ];
     let streamProperties: IStreamPropertyObj = {};
-    const streams = this.mainUtilsService.objectKeyFinder(stages);
 
     // Из-за проблем с кодировкой заголовки строчек не прочитываются. Соответственно их нужно заменить
     for (let i = 0; i < contents.length; i++) {
@@ -112,18 +115,20 @@ export class XlsxReaderService {
     return streamProperties;
   }
 
-  private streamCompositions(compositions: IStages[], txtData: ITxtData): IStreamComposition {
-    const { feedStages, drawStages, ...rest } = txtData;
-    const drawCompositions = this.streamCompositionExtractor(drawStages, compositions);
-    const feedCompositions = this.streamCompositionExtractor(feedStages, compositions);
+  private streamCompositions(
+    compositions: IStages[],
+    feedStreams: string[],
+    drawStreams: string[],
+  ): IStreamComposition {
+    const drawCompositions = this.streamCompositionExtractor(drawStreams, compositions);
+    const feedCompositions = this.streamCompositionExtractor(feedStreams, compositions);
 
     return { feedCompositions, drawCompositions };
   }
 
-  private streamProperties(materialStreams: IStages[], txtData: ITxtData): IStreamProperty {
-    const { feedStages, drawStages, ...rest } = txtData;
-    const feedProperties = this.streamPropertiesExtractor(feedStages, materialStreams);
-    const drawProperties = this.streamPropertiesExtractor(drawStages, materialStreams);
+  private streamProperties(materialStreams: IStages[], feedStreams: string[], drawStreams: string[]): IStreamProperty {
+    const feedProperties = this.streamPropertiesExtractor(feedStreams, materialStreams);
+    const drawProperties = this.streamPropertiesExtractor(drawStreams, materialStreams);
 
     return { feedProperties, drawProperties };
   }

@@ -77,8 +77,13 @@ export class MainUtilsService {
   streamStagePairMaker(stages: {}, streams: string[]): string[] {
     const streamStagePair: string[] = [];
     for (let stream of streams) {
-      streamStagePair.push(`${stream} / ${stages[stream]}`);
+      if (stages[stream] !== undefined) {
+        streamStagePair.push(`${stream} / ${stages[stream]}`);
+      } else {
+        streamStagePair.push(`${stream} / Дополнительный поток`);
+      }
     }
+    console.log(streamStagePair);
     return streamStagePair;
   }
 

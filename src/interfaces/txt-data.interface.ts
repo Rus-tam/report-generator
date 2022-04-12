@@ -1,4 +1,5 @@
 import { IHeatFlow } from "./heat-flow.interface";
+import { IStages } from "./stages.interface";
 
 export interface ITxtData {
   colNumb: string;
@@ -22,8 +23,8 @@ export interface ITxtData {
     surfaceTension: number[];
   };
   pressureList: number[];
-  feedStages: {};
-  drawStages: {};
+  feedStages: IStages;
+  drawStages: IStages;
   heatFlow: IHeatFlow;
   internalExternalStr: {};
 }

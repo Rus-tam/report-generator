@@ -40,8 +40,6 @@ export class ExcelDataService {
     let feedStreams = [...this.mainUtils.objectKeyFinder(feedProp), ...addFeedStreams];
     let drawStreams = [...this.mainUtils.objectKeyFinder(drawProp), ...addDrawStreams];
 
-    console.log(drawStreams);
-
     const streamStagePairFeed = this.mainUtils.streamStagePairMaker(feedStages, feedStreams);
     const streamStagePairDraw = this.mainUtils.streamStagePairMaker(drawStages, drawStreams);
 
