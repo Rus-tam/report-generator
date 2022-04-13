@@ -16,8 +16,8 @@ import { AddStreamDto } from "src/xlsx-writer/dto/add-stream.dto";
 export class XlsxReaderService {
   constructor(private readonly txtReaderService: TxtReaderService, private mainUtilsService: MainUtilsService) {}
 
-  async parseXlsxFile(additionalStreams: AddStreamDto): Promise<IXlsxData> {
-    const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
+  async parseXlsxFile(additionalStreams: AddStreamDto, txtData: ITxtData): Promise<IXlsxData> {
+    // const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const { feedStages, drawStages, ...rest } = txtData;
     const addFeedStreams = additionalStreams.addFeedStreams.filter((stream) => stream.length !== 0);
     const addDrawStreams = additionalStreams.addDrawStreams.filter((stream) => stream.length !== 0);

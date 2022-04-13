@@ -16,11 +16,11 @@ export class XlsxWriterService {
     private readonly excelDataService: ExcelDataService,
   ) {}
 
-  async createXlsxFile(additionalStreams: AddStreamDto) {
+  async createXlsxFile(additionalStreams: AddStreamDto, txtData: ITxtData, xlsxData: IXlsxData) {
     const colInfo: IColWidth[] = [];
     const colInfoLoads: IColWidth[] = [];
-    const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
-    const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile(additionalStreams);
+    // const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
+    // const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile(additionalStreams);
 
     let rowInfo = [
       {
