@@ -13,4 +13,10 @@ export class FilesUploadController {
   async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<FileElementResponse[]> {
     return this.filesUploadService.saveFiles([file]);
   }
+
+  @Get()
+  @HttpCode(200)
+  async fileDir() {
+    this.filesUploadService.changeEncoding();
+  }
 }

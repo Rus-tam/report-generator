@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { TxtReaderService } from "src/txt-reader/txt-reader.service";
 import { MainUtilsService } from "src/utils/main-utils.service";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import * as xlsx from "xlsx";
+import { path } from "app-root-path";
 import { IStreamComposition } from "src/interfaces/stream-composition.interface";
 import { IStreamProperty } from "src/interfaces/stream-property.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
@@ -14,17 +14,16 @@ import { AddStreamDto } from "src/xlsx-writer/dto/add-stream.dto";
 
 @Injectable()
 export class XlsxReaderService {
-  constructor(private readonly txtReaderService: TxtReaderService, private mainUtilsService: MainUtilsService) {}
+  constructor(private mainUtilsService: MainUtilsService) {}
 
   async parseXlsxFile(additionalStreams: AddStreamDto, txtData: ITxtData): Promise<IXlsxData> {
-    // const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
     const { feedStages, drawStages, ...rest } = txtData;
     const addFeedStreams = additionalStreams.addFeedStreams.filter((stream) => stream.length !== 0);
     const addDrawStreams = additionalStreams.addDrawStreams.filter((stream) => stream.length !== 0);
     let feedStreams = [...Object.keys(feedStages), ...addFeedStreams];
     let drawStreams = [...Object.keys(drawStages), ...addDrawStreams];
 
-    const workbook = xlsx.readFile("src/files/streams.xlsx");
+    const workbook = xlsx.readFile(`${path}/files/streams.xlsx`);
     const compositions: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
     const materialStreams: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 

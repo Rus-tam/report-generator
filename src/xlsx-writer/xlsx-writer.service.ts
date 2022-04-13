@@ -2,25 +2,16 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { IColWidth } from "src/interfaces/column-width.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
-import { TxtReaderService } from "src/txt-reader/txt-reader.service";
 import { ExcelDataService } from "src/utils/excel-data.service";
-import { XlsxReaderService } from "src/xlsx-reader/xlsx-reader.service";
 import * as xlsx from "xlsx";
-import { AddStreamDto } from "./dto/add-stream.dto";
 
 @Injectable()
 export class XlsxWriterService {
-  constructor(
-    private readonly txtReaderService: TxtReaderService,
-    private readonly xlsxReaderService: XlsxReaderService,
-    private readonly excelDataService: ExcelDataService,
-  ) {}
+  constructor(private readonly excelDataService: ExcelDataService) {}
 
-  async createXlsxFile(additionalStreams: AddStreamDto, txtData: ITxtData, xlsxData: IXlsxData) {
+  async createXlsxFile(txtData: ITxtData, xlsxData: IXlsxData) {
     const colInfo: IColWidth[] = [];
     const colInfoLoads: IColWidth[] = [];
-    // const txtData: ITxtData = await this.txtReaderService.parseTXTFile();
-    // const xlsxData: IXlsxData = await this.xlsxReaderService.parseXlsxFile(additionalStreams);
 
     let rowInfo = [
       {

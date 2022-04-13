@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import * as fs from "fs/promises";
+import * as fs from "fs-extra";
+import { path } from "app-root-path";
 import { IFeedProductStreams } from "src/interfaces/feed-product-streams.interface";
 import { IHeatFlow } from "src/interfaces/heat-flow.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
@@ -19,7 +20,10 @@ export class TxtReaderService {
     const workingRangePress: string[] = [];
     const workingRangeInternalExternal: string[] = [];
 
-    const data: string = await fs.readFile("src/files/internals.txt", "utf8");
+    // const data: string = await fs.readFile("/files/internals.txt", "utf8");
+    const data: string = await fs.readFile(`${path}/files/internals.txt`, "utf8");
+    console.log(data);
+
     const lines = data.split("\n");
 
     lines.forEach((line) => {

@@ -38,7 +38,7 @@ export class AppController {
       const txtData = await this.txtDataService.parseTXTFile();
       const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams, txtData);
 
-      this.xlsxWriterService.createXlsxFile(additionalStreams, txtData, excelData);
+      this.xlsxWriterService.createXlsxFile(txtData, excelData);
     } catch (e) {
       throw new BadRequestException("Не удалось выполнить запрос");
     }
