@@ -1,4 +1,19 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, Injectable, Post } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Injectable,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { FileElementResponse } from "./files-upload/dto/file-element.response";
+import { FilesUploadService } from "./files-upload/files-upload.service";
 import { ITxtData } from "./interfaces/txt-data.interface";
 import { IXlsxData } from "./interfaces/xlsx-data.interface";
 import { TxtReaderService } from "./txt-reader/txt-reader.service";
@@ -12,7 +27,25 @@ export class AppController {
     private readonly xlsxWriterService: XlsxWriterService,
     private readonly xlsReaderService: XlsxReaderService,
     private readonly txtDataService: TxtReaderService,
+    private readonly filesUploadService: FilesUploadService,
   ) {}
+
+  @Post("upload")
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor("files"))
+  async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<FileElementResponse[]> {
+    if (file.originalname.split(".").includes("txt") || file.originalname.split(".").includes("xlsx")) {
+      return this.filesUploadService.saveFiles([file]);
+    } else {
+      throw new ForbiddenException("Приложение не поддерживает данный формат файлов");
+    }
+  }
+
+  @Delete("delete-files")
+  @HttpCode(200)
+  async fileDelete() {
+    this.filesUploadService.deleteAllFiles();
+  }
 
   @Get()
   @HttpCode(200)

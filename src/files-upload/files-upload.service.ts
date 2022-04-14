@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { FileElementResponse } from "./dto/file-element.response";
 import { path } from "app-root-path";
-import { ensureDir, writeFile, readdir, readFile } from "fs-extra";
+import { writeFile, rmdir, ensureDir, readdir, unlink } from "fs-extra";
 import { fstat } from "fs";
 import * as encoding from "encoding";
 
@@ -9,21 +9,34 @@ import * as encoding from "encoding";
 export class FilesUploadService {
   async saveFiles(files: Express.Multer.File[]): Promise<FileElementResponse[]> {
     const uploadFolder = `${path}/files`;
+    await ensureDir(uploadFolder);
+
     const res: FileElementResponse[] = [];
     for (let file of files) {
-      await writeFile(`${uploadFolder}/${file.originalname}`, file.buffer);
+      if (file.originalname.split(".").includes("txt")) {
+        let text = encoding.convert(file.buffer, "UTF-8", "WINDOWS-1251");
+        await writeFile(`${uploadFolder}/${file.originalname}`, text);
+      } else {
+        await writeFile(`${uploadFolder}/${file.originalname}`, file.buffer);
+      }
+
       res.push({ url: `${uploadFolder}/${file.originalname}`, name: file.originalname });
     }
     return res;
   }
 
-  async changeEncoding() {
+  async deleteAllFiles() {
     const dirFiles: string[] = await readdir(`${path}/files`);
 
-    const fileName = dirFiles.find((file) => file.split(".").includes("txt"));
+    for (let file of dirFiles) {
+      try {
+        unlink(`${path}/files/${file}`);
+      } catch (e) {
+        continue;
+      }
+    }
 
-    let text = await readFile(`${path}/files/${fileName}`);
-    text = encoding.convert(text, "UTF-8", "WINDOWS-1251");
-    await writeFile(`${path}/files/${fileName}`, text);
+    // Для удаления директории
+    // rmdir(`${path}/files/${dirName}`, { recursive: true });
   }
 }
