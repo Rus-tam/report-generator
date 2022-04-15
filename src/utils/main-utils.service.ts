@@ -3,7 +3,7 @@ import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { IStages } from "src/interfaces/stages.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 import { path } from "app-root-path";
-import { writeFile, rmdir, ensureDir, readdir, unlink } from "fs-extra";
+import { ensureDir, readdir } from "fs-extra";
 
 @Injectable()
 export class MainUtilsService {

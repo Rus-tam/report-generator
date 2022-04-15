@@ -6,7 +6,6 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
-  Injectable,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -14,8 +13,6 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { FileElementResponse } from "./files-upload/dto/file-element.response";
 import { FilesUploadService } from "./files-upload/files-upload.service";
-import { ITxtData } from "./interfaces/txt-data.interface";
-import { IXlsxData } from "./interfaces/xlsx-data.interface";
 import { TxtReaderService } from "./txt-reader/txt-reader.service";
 import { XlsxReaderService } from "./xlsx-reader/xlsx-reader.service";
 import { AddStreamDto } from "./xlsx-writer/dto/add-stream.dto";

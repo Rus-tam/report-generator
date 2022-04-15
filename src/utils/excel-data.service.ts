@@ -6,7 +6,6 @@ import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
-import { AddStreamDto } from "src/xlsx-writer/dto/add-stream.dto";
 import { MainUtilsService } from "./main-utils.service";
 
 @Injectable()
