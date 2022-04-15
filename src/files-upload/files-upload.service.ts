@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { FileElementResponse } from "./dto/file-element.response";
 import { path } from "app-root-path";
 import { writeFile, rmdir, ensureDir, readdir, unlink } from "fs-extra";
-import { fstat } from "fs";
 import * as encoding from "encoding";
 
 @Injectable()

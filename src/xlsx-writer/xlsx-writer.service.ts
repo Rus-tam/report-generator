@@ -3,6 +3,8 @@ import { IColWidth } from "src/interfaces/column-width.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { ExcelDataService } from "src/utils/excel-data.service";
+import { path } from "app-root-path";
+import { ensureDir } from "fs-extra";
 import * as xlsx from "xlsx";
 
 @Injectable()
@@ -50,7 +52,10 @@ export class XlsxWriterService {
       xlsx.utils.book_append_sheet(workBook, componentsWorkSheet, "Состав");
       xlsx.utils.book_append_sheet(workBook, mainColumnWorkSheet, "Отчет");
       xlsx.utils.book_append_sheet(workBook, vapourLiquidLoadSheet, "Нагрузки");
-      xlsx.writeFile(workBook, "response.xlsx");
+
+      const responseDir = `${path}/result/`;
+      await ensureDir(responseDir);
+      await xlsx.writeFile(workBook, `${responseDir}/column_info.xlsx`);
     } catch (e) {
       throw new BadRequestException("Закройте открытый файл Excel");
     }
