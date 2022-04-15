@@ -1,16 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
+import { IStages } from "src/interfaces/stages.interface";
+import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 
 @Injectable()
 export class MainUtilsService {
   // Удаляет пустые элементы из массива
-  deleteEmptyElements(line: string[]): string[] {
-    const cleanLine: string[] = [];
-    for (const elem of line) {
-      if (elem.length !== 0) {
-        cleanLine.push(elem);
-      }
-    }
+  deleteEmptyElements(lines: string[]): string[] {
+    let cleanLine: string[] = lines.filter((line) => line.length != 0);
 
     return cleanLine;
   }
@@ -85,7 +82,7 @@ export class MainUtilsService {
     };
   }
 
-  flowRatesDefiner(tray: string, streamStages: {}, properties: {}, colNumb) {
+  flowRatesDefiner(tray: string, streamStages: IStages, properties: IStreamPropertyObj, colNumb: string) {
     for (let key in streamStages) {
       properties[key] === undefined ? (key = key + " " + `@${colNumb}`) : null;
       if (streamStages[key] === tray) {

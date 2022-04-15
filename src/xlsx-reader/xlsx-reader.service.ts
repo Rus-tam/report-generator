@@ -3,8 +3,6 @@ import { MainUtilsService } from "src/utils/main-utils.service";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import * as xlsx from "xlsx";
 import { path } from "app-root-path";
-import { IStreamComposition } from "src/interfaces/stream-composition.interface";
-import { IStreamProperty } from "src/interfaces/stream-property.interface";
 import { IXlsxData } from "src/interfaces/xlsx-data.interface";
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
