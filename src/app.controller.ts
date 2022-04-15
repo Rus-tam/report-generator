@@ -49,7 +49,7 @@ export class AppController {
 
   @Get()
   @HttpCode(200)
-  async getAllData(): Promise<{ txtData: ITxtData; excelData: IXlsxData }> {
+  async getAllData() {
     try {
       let additionalStreams: AddStreamDto = {
         addFeedStreams: [],

@@ -22,7 +22,6 @@ export class TxtReaderService {
 
     // const data: string = await fs.readFile("/files/internals.txt", "utf8");
     const data: string = await fs.readFile(`${path}/files/internals.txt`, "utf8");
-    console.log(data);
 
     const lines = data.split("\n");
 
@@ -242,7 +241,7 @@ export class TxtReaderService {
     const drawStages = {};
 
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes("Базис расхода: Молярный")) {
+      if (lines[i].includes("Базис расхода")) {
         startPosition = i + 3;
       }
       if (lines[i].includes("НАСТРОЙКА")) {

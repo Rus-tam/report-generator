@@ -17,9 +17,11 @@ export class XlsxReaderService {
   constructor(private mainUtilsService: MainUtilsService) {}
 
   async parseXlsxFile(additionalStreams: AddStreamDto, txtData: ITxtData): Promise<IXlsxData> {
-    const { feedStages, drawStages, ...rest } = txtData;
+    const { feedStages, drawStages, colNumb, ...rest } = txtData;
+
     const addFeedStreams = additionalStreams.addFeedStreams.filter((stream) => stream.length !== 0);
     const addDrawStreams = additionalStreams.addDrawStreams.filter((stream) => stream.length !== 0);
+
     let feedStreams = [...Object.keys(feedStages), ...addFeedStreams];
     let drawStreams = [...Object.keys(drawStages), ...addDrawStreams];
 
@@ -27,15 +29,22 @@ export class XlsxReaderService {
     const compositions: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
     const materialStreams: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 
-    const { feedCompositions, drawCompositions } = this.streamCompositions(compositions, feedStreams, drawStreams);
-    const { feedProperties, drawProperties } = this.streamProperties(materialStreams, feedStreams, drawStreams);
+    // Streams composition
+    const feedCompositions = this.streamComposition(feedStreams, colNumb, compositions);
+    const drawCompositions = this.streamComposition(drawStreams, colNumb, compositions);
+
+    // Stream properties
+    const feedProperties = this.streamProperties(feedStreams, colNumb, materialStreams);
+    const drawProperties = this.streamProperties(drawStreams, colNumb, materialStreams);
+
+    // All streams names
     const allStreams = this.getAllStreams(materialStreams);
 
     return { feedCompositions, drawCompositions, feedProperties, drawProperties, allStreams };
   }
 
   // Извлечение составов из экселевского документа
-  private streamCompositionExtractor(streams: string[], compositions: {}[]): IStreamCompositionExtr {
+  private streamComposition(streams: string[], colNumb: string, compositions: {}[]): IStreamCompositionExtr {
     let streamComposition: IStreamCompositionExtr = {};
     streams = streams.filter((stream) => {
       if (
@@ -51,6 +60,7 @@ export class XlsxReaderService {
     for (let stream of streams) {
       let molFraction: IStreamMolFraction = {};
       for (let obj of compositions) {
+        obj[stream] === undefined ? (stream = stream + " " + `@${colNumb}`) : null;
         if (obj[stream] >= 0.000001) {
           molFraction[obj["__EMPTY"]] = this.mainUtilsService.rounded(obj[stream], 4);
         } else if (obj[stream] === undefined) {
@@ -66,7 +76,7 @@ export class XlsxReaderService {
   }
 
   // Извлечение свойств потоков из экселевского документа
-  private streamPropertiesExtractor(streams: string[], properties: {}[]): IStreamPropertyObj {
+  private streamProperties(streams: string[], colNumb: string, properties: {}[]): IStreamPropertyObj {
     const contents = [
       "Vapour Fraction",
       "Temperature [C]",
@@ -101,6 +111,8 @@ export class XlsxReaderService {
       };
       // Какая-то странная магия
       for (let obj of properties) {
+        obj[stream] === undefined ? (stream = stream + " " + `@${colNumb}`) : null;
+
         if (obj["__EMPTY"] === contents[9] && obj[stream] !== "<empty>") {
           propData[contents[9]] = obj[stream] * 3600;
         } else if (obj["__EMPTY"] === contents[9] && obj[stream] === "<empty>") {
@@ -115,24 +127,6 @@ export class XlsxReaderService {
     }
 
     return streamProperties;
-  }
-
-  private streamCompositions(
-    compositions: IStages[],
-    feedStreams: string[],
-    drawStreams: string[],
-  ): IStreamComposition {
-    const drawCompositions = this.streamCompositionExtractor(drawStreams, compositions);
-    const feedCompositions = this.streamCompositionExtractor(feedStreams, compositions);
-
-    return { feedCompositions, drawCompositions };
-  }
-
-  private streamProperties(materialStreams: IStages[], feedStreams: string[], drawStreams: string[]): IStreamProperty {
-    const feedProperties = this.streamPropertiesExtractor(feedStreams, materialStreams);
-    const drawProperties = this.streamPropertiesExtractor(drawStreams, materialStreams);
-
-    return { feedProperties, drawProperties };
   }
 
   private getAllStreams(materialStreams: IStages[]): string[] {

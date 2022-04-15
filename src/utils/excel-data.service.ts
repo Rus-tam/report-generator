@@ -275,7 +275,8 @@ export class ExcelDataService {
     let excelData: IReportExcelData[] = [];
     let efficiency: string = "";
 
-    const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList, trayEfficiencies } = txtData;
+    const { heatFlow, feedStages, drawStages, numberOfTrays, stateCond, pressureList, trayEfficiencies, colNumb } =
+      txtData;
     const { feedProperties, drawProperties } = xlsxData;
 
     const drawStreams = Object.keys(drawProperties);
@@ -330,12 +331,12 @@ export class ExcelDataService {
       pressureProfile.push(tempObj);
 
       tempObj = {};
-      tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties)}`;
+      tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, feedStages, feedProperties, colNumb)}`;
       feedRatesProfile.push(tempObj);
     }
     for (let tray of drawTrays) {
       let tempObj = {};
-      tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, drawStages, drawProperties)}`;
+      tempObj[tray] = `${this.mainUtils.flowRatesDefiner(tray, drawStages, drawProperties, colNumb)}`;
       drawRatesProfile.push(tempObj);
     }
 
