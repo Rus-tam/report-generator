@@ -2,6 +2,8 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { IStreamProp } from "src/interfaces/stream-prop.interface";
 import { IStages } from "src/interfaces/stages.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
+import { path } from "app-root-path";
+import { writeFile, rmdir, ensureDir, readdir, unlink } from "fs-extra";
 
 @Injectable()
 export class MainUtilsService {
@@ -99,5 +101,12 @@ export class MainUtilsService {
       }
     }
     return result;
+  }
+
+  async initialFileName(fileExtention: string): Promise<string> {
+    await ensureDir(`${path}/files`);
+    const dirFiles: string[] = await readdir(`${path}/files`);
+
+    return dirFiles.find((file) => file.split(".").includes(fileExtention));
   }
 }

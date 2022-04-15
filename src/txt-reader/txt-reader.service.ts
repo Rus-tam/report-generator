@@ -20,8 +20,9 @@ export class TxtReaderService {
     const workingRangePress: string[] = [];
     const workingRangeInternalExternal: string[] = [];
 
-    // const data: string = await fs.readFile("/files/internals.txt", "utf8");
-    const data: string = await fs.readFile(`${path}/files/internals.txt`, "utf8");
+    const fileName = await this.utilsService.initialFileName("txt");
+
+    const data: string = await fs.readFile(`${path}/files/${fileName}`, "utf8");
 
     const lines = data.split("\n");
 

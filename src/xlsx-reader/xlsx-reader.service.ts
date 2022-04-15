@@ -23,7 +23,9 @@ export class XlsxReaderService {
     let feedStreams = [...Object.keys(feedStages), ...addFeedStreams];
     let drawStreams = [...Object.keys(drawStages), ...addDrawStreams];
 
-    const workbook = xlsx.readFile(`${path}/files/streams.xlsx`);
+    const fileName = await this.mainUtilsService.initialFileName("xlsx");
+
+    const workbook = xlsx.readFile(`${path}/files/${fileName}`);
     const compositions: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
     const materialStreams: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 
