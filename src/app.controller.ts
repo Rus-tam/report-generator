@@ -37,16 +37,11 @@ export class AppController {
     @UserName() userName: string,
   ): Promise<FileElementResponse[]> {
     if (file.originalname.split(".").includes("txt") || file.originalname.split(".").includes("xlsx")) {
+      this.filesUploadService.deleteAllFiles(userName);
       return this.filesUploadService.saveFiles([file], userName);
     } else {
       throw new ForbiddenException("Приложение не поддерживает данный формат файлов");
     }
-  }
-
-  @Delete("delete-files")
-  @HttpCode(200)
-  async fileDelete() {
-    this.filesUploadService.deleteAllFiles();
   }
 
   @Get()

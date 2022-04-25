@@ -24,14 +24,16 @@ export class FilesUploadService {
     return res;
   }
 
-  async deleteAllFiles() {
-    const dirFiles: string[] = await readdir(`${path}/files`);
+  async deleteAllFiles(userName: string) {
+    const dirFiles: string[] = await readdir(`${path}/files/${userName}`);
 
-    for (let file of dirFiles) {
-      try {
-        unlink(`${path}/files/${file}`);
-      } catch (e) {
-        continue;
+    if (dirFiles.length > 1) {
+      for (let file of dirFiles) {
+        try {
+          unlink(`${path}/files/${userName}/${file}`);
+        } catch (e) {
+          continue;
+        }
       }
     }
 
