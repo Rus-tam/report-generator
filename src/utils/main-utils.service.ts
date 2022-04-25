@@ -103,9 +103,9 @@ export class MainUtilsService {
     return result;
   }
 
-  async initialFileName(fileExtention: string): Promise<string> {
-    await ensureDir(`${path}/files`);
-    const dirFiles: string[] = await readdir(`${path}/files`);
+  async initialFileName(fileExtention: string, userName: string): Promise<string> {
+    await ensureDir(`${path}/files/${userName}`);
+    const dirFiles: string[] = await readdir(`${path}/files/${userName}`);
 
     return dirFiles.find((file) => file.split(".").includes(fileExtention));
   }

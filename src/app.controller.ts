@@ -11,8 +11,10 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { UserName } from "./decorators/user-name.decorator";
 import { FileElementResponse } from "./files-upload/dto/file-element.response";
 import { FilesUploadService } from "./files-upload/files-upload.service";
+import { UserNameInterceptor } from "./interseptors/user-name.interceptor";
 import { TxtReaderService } from "./txt-reader/txt-reader.service";
 import { XlsxReaderService } from "./xlsx-reader/xlsx-reader.service";
 import { AddStreamDto } from "./xlsx-writer/dto/add-stream.dto";
@@ -29,10 +31,13 @@ export class AppController {
 
   @Post("upload")
   @HttpCode(200)
-  @UseInterceptors(FileInterceptor("files"))
-  async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<FileElementResponse[]> {
+  @UseInterceptors(FileInterceptor("files"), UserNameInterceptor)
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @UserName() userName: string,
+  ): Promise<FileElementResponse[]> {
     if (file.originalname.split(".").includes("txt") || file.originalname.split(".").includes("xlsx")) {
-      return this.filesUploadService.saveFiles([file]);
+      return this.filesUploadService.saveFiles([file], userName);
     } else {
       throw new ForbiddenException("Приложение не поддерживает данный формат файлов");
     }
@@ -46,14 +51,15 @@ export class AppController {
 
   @Get()
   @HttpCode(200)
-  async getAllData() {
+  @UseInterceptors(UserNameInterceptor)
+  async getAllData(@UserName() userName: string) {
     try {
       let additionalStreams: AddStreamDto = {
         addFeedStreams: [],
         addDrawStreams: [],
       };
-      const txtData = await this.txtDataService.parseTXTFile();
-      const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams, txtData);
+      const txtData = await this.txtDataService.parseTXTFile(userName);
+      const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams, txtData, userName);
 
       return { txtData, excelData };
     } catch (e) {
@@ -63,10 +69,11 @@ export class AppController {
 
   @Post()
   @HttpCode(201)
-  async createExcelFile(@Body() additionalStreams: AddStreamDto) {
+  @UseInterceptors(UserNameInterceptor)
+  async createExcelFile(@Body() additionalStreams: AddStreamDto, @UserName() userName: string) {
     try {
-      const txtData = await this.txtDataService.parseTXTFile();
-      const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams, txtData);
+      const txtData = await this.txtDataService.parseTXTFile(userName);
+      const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams, txtData, userName);
 
       this.xlsxWriterService.createXlsxFile(txtData, excelData);
     } catch (e) {

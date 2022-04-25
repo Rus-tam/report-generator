@@ -10,7 +10,7 @@ import { MainUtilsService } from "../utils/main-utils.service";
 export class TxtReaderService {
   constructor(private readonly utilsService: MainUtilsService) {}
 
-  async parseTXTFile(): Promise<ITxtData> {
+  async parseTXTFile(userName: string): Promise<ITxtData> {
     let colNumb = "";
     let isReboiler = false;
     let isCondenser = false;
@@ -20,9 +20,9 @@ export class TxtReaderService {
     const workingRangePress: string[] = [];
     const workingRangeInternalExternal: string[] = [];
 
-    const fileName = await this.utilsService.initialFileName("txt");
+    const fileName = await this.utilsService.initialFileName("txt", userName);
 
-    const data: string = await fs.readFile(`${path}/files/${fileName}`, "utf8");
+    const data: string = await fs.readFile(`${path}/files/${userName}/${fileName}`, "utf8");
 
     const lines = data.split("\n");
 

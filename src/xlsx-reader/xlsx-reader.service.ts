@@ -14,7 +14,7 @@ import { AddStreamDto } from "src/xlsx-writer/dto/add-stream.dto";
 export class XlsxReaderService {
   constructor(private mainUtilsService: MainUtilsService) {}
 
-  async parseXlsxFile(additionalStreams: AddStreamDto, txtData: ITxtData): Promise<IXlsxData> {
+  async parseXlsxFile(additionalStreams: AddStreamDto, txtData: ITxtData, userName: string): Promise<IXlsxData> {
     const { feedStages, drawStages, colNumb, ...rest } = txtData;
 
     const addFeedStreams = additionalStreams.addFeedStreams.filter((stream) => stream.length !== 0);
@@ -23,9 +23,9 @@ export class XlsxReaderService {
     let feedStreams = [...Object.keys(feedStages), ...addFeedStreams];
     let drawStreams = [...Object.keys(drawStages), ...addDrawStreams];
 
-    const fileName = await this.mainUtilsService.initialFileName("xlsx");
+    const fileName = await this.mainUtilsService.initialFileName("xlsx", userName);
 
-    const workbook = xlsx.readFile(`${path}/files/${fileName}`);
+    const workbook = xlsx.readFile(`${path}/files/${userName}/${fileName}`);
     const compositions: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Compositions"]);
     const materialStreams: IStages[] = xlsx.utils.sheet_to_json(workbook.Sheets["Material Streams"]);
 

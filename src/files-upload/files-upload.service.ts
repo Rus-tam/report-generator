@@ -6,8 +6,8 @@ import * as encoding from "encoding";
 
 @Injectable()
 export class FilesUploadService {
-  async saveFiles(files: Express.Multer.File[]): Promise<FileElementResponse[]> {
-    const uploadFolder = `${path}/files`;
+  async saveFiles(files: Express.Multer.File[], userName: string): Promise<FileElementResponse[]> {
+    const uploadFolder = `${path}/files/${userName}`;
     await ensureDir(uploadFolder);
 
     const res: FileElementResponse[] = [];
