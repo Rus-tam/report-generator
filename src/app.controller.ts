@@ -7,10 +7,12 @@ import {
   Get,
   HttpCode,
   Post,
+  StreamableFile,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { createReadStream } from "fs";
 import { UserName } from "./decorators/user-name.decorator";
 import { FileElementResponse } from "./files-upload/dto/file-element.response";
 import { FilesUploadService } from "./files-upload/files-upload.service";
@@ -19,6 +21,7 @@ import { TxtReaderService } from "./txt-reader/txt-reader.service";
 import { XlsxReaderService } from "./xlsx-reader/xlsx-reader.service";
 import { AddStreamDto } from "./xlsx-writer/dto/add-stream.dto";
 import { XlsxWriterService } from "./xlsx-writer/xlsx-writer.service";
+import { path } from "app-root-path";
 
 @Controller()
 export class AppController {
@@ -65,14 +68,27 @@ export class AppController {
   @Post()
   @HttpCode(201)
   @UseInterceptors(UserNameInterceptor)
-  async createExcelFile(@Body() additionalStreams: AddStreamDto, @UserName() userName: string) {
+  async createExcelFile(@Body() additionalStreams: AddStreamDto, @UserName() userName: string): Promise<void> {
     try {
       const txtData = await this.txtDataService.parseTXTFile(userName);
       const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams, txtData, userName);
 
-      this.xlsxWriterService.createXlsxFile(txtData, excelData);
+      await this.xlsxWriterService.createXlsxFile(txtData, excelData, userName);
     } catch (e) {
       throw new BadRequestException("Не удалось выполнить запрос");
+    }
+  }
+
+  @Get("download")
+  @HttpCode(200)
+  @UseInterceptors(UserNameInterceptor)
+  async getResultFiel(@UserName() userName: string): Promise<StreamableFile> {
+    try {
+      const file = createReadStream(`${path}/result/${userName}/column_info.xlsx`);
+
+      return new StreamableFile(file);
+    } catch (e) {
+      throw new BadRequestException("Не удается скачать файл");
     }
   }
 }

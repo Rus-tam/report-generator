@@ -11,7 +11,7 @@ import * as xlsx from "xlsx";
 export class XlsxWriterService {
   constructor(private readonly excelDataService: ExcelDataService) {}
 
-  async createXlsxFile(txtData: ITxtData, xlsxData: IXlsxData) {
+  async createXlsxFile(txtData: ITxtData, xlsxData: IXlsxData, userName: string) {
     const colInfo: IColWidth[] = [];
     const colInfoLoads: IColWidth[] = [];
 
@@ -53,7 +53,7 @@ export class XlsxWriterService {
       xlsx.utils.book_append_sheet(workBook, mainColumnWorkSheet, "Отчет");
       xlsx.utils.book_append_sheet(workBook, vapourLiquidLoadSheet, "Нагрузки");
 
-      const responseDir = `${path}/result/`;
+      const responseDir = `${path}/result/${userName}`;
       await ensureDir(responseDir);
       await xlsx.writeFile(workBook, `${responseDir}/column_info.xlsx`);
     } catch (e) {
