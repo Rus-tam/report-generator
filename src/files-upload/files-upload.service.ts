@@ -24,8 +24,10 @@ export class FilesUploadService {
     return res;
   }
 
-  async deleteAllFiles(userName: string) {
-    const dirFiles: string[] = await readdir(`${path}/files/${userName}`);
+  async deleteAllFiles(userName: string): Promise<void> {
+    const deletingFolder = `${path}/files/${userName}`;
+    await ensureDir(deletingFolder);
+    const dirFiles: string[] = await readdir(deletingFolder);
 
     if (dirFiles.length > 1) {
       for (let file of dirFiles) {
