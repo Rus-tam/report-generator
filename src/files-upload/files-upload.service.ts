@@ -25,17 +25,21 @@ export class FilesUploadService {
   }
 
   async deleteAllFiles(userName: string): Promise<void> {
+    let deleteTxt: string = "";
+    let deleteXlsx: string = "";
     const deletingFolder = `${path}/files/${userName}`;
     await ensureDir(deletingFolder);
     const dirFiles: string[] = await readdir(deletingFolder);
 
     if (dirFiles.length > 1) {
-      for (let file of dirFiles) {
-        try {
-          unlink(`${path}/files/${userName}/${file}`);
-        } catch (e) {
-          continue;
-        }
+      deleteTxt = dirFiles.find((file) => file.split(".").pop() === "txt");
+      deleteXlsx = dirFiles.find((file) => file.split(".").pop() === "xlsx");
+
+      try {
+        unlink(`${path}/files/${userName}/${deleteTxt}`);
+        unlink(`${path}/files/${userName}/${deleteXlsx}`);
+      } catch (e) {
+        console.log(e);
       }
     }
 
