@@ -4,6 +4,9 @@ import { IStages } from "src/interfaces/stages.interface";
 import { IStreamPropertyObj } from "src/interfaces/streams-properties-obj.interface";
 import { path } from "app-root-path";
 import { ensureDir, readdir } from "fs-extra";
+import { ICreatedAt } from "src/interfaces/createdAt.interface";
+import { unlink } from "fs-extra";
+import { UserName } from "src/decorators/user-name.decorator";
 
 @Injectable()
 export class MainUtilsService {
@@ -108,5 +111,30 @@ export class MainUtilsService {
     const dirFiles: string[] = await readdir(`${path}/files/${userName}`);
 
     return dirFiles.find((file) => file.split(".").includes(fileExtention));
+  }
+
+  // Находим последний созданный файл
+  latestCreated(createTime: ICreatedAt[], fileExtention: string): string {
+    let maxTime = 0;
+    let saveFile = "";
+    for (let time of createTime) {
+      if (time.fileName.split(".").pop() === fileExtention) {
+        if (maxTime < time.createdAt) {
+          maxTime = time.createdAt;
+          saveFile = time.fileName;
+        }
+      }
+    }
+
+    return saveFile;
+  }
+
+  // Удаление старых файлов
+  deleteOldFiles(dirFiles: string[], fileExtention: string, userName: string, saveFile: string) {
+    for (let file of dirFiles) {
+      if (file !== saveFile && file.split(".").pop() === fileExtention) {
+        unlink(`${path}/files/${userName}/${file}`);
+      }
+    }
   }
 }

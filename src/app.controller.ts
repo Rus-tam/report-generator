@@ -40,7 +40,7 @@ export class AppController {
     @UserName() userName: string,
   ): Promise<FileElementResponse[]> {
     if (file.originalname.split(".").includes("txt") || file.originalname.split(".").includes("xlsx")) {
-      this.filesUploadService.deleteAllFiles(userName);
+      // this.filesUploadService.deleteAllFiles(userName);
       return this.filesUploadService.saveFiles([file], userName);
     } else {
       throw new ForbiddenException("Приложение не поддерживает данный формат файлов");
@@ -56,6 +56,7 @@ export class AppController {
         addFeedStreams: [],
         addDrawStreams: [],
       };
+      this.filesUploadService.deleteAllFiles(userName);
       const txtData = await this.txtDataService.parseTXTFile(userName);
       const excelData = await this.xlsReaderService.parseXlsxFile(additionalStreams, txtData, userName);
 

@@ -1,11 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { FileElementResponse } from "./dto/file-element.response";
 import { path } from "app-root-path";
-import { writeFile, rmdir, ensureDir, readdir, unlink } from "fs-extra";
+import { writeFile, rmdir, ensureDir, readdir, unlink, stat } from "fs-extra";
 import * as encoding from "encoding";
+import { ICreatedAt } from "src/interfaces/createdAt.interface";
+import { MainUtilsService } from "src/utils/main-utils.service";
 
 @Injectable()
 export class FilesUploadService {
+  constructor(private readonly mainUtilsService: MainUtilsService) {}
+
   async saveFiles(files: Express.Multer.File[], userName: string): Promise<FileElementResponse[]> {
     const uploadFolder = `${path}/files/${userName}`;
     await ensureDir(uploadFolder);
@@ -25,25 +29,31 @@ export class FilesUploadService {
   }
 
   async deleteAllFiles(userName: string): Promise<void> {
-    let deleteTxt: string = "";
-    let deleteXlsx: string = "";
+    let txtNumber = 0;
+    let xlsxNumber = 0;
+    const createTime: ICreatedAt[] = [];
     const deletingFolder = `${path}/files/${userName}`;
     await ensureDir(deletingFolder);
     const dirFiles: string[] = await readdir(deletingFolder);
+    for (let file of dirFiles) {
+      file.split(".").pop() === "txt" ? txtNumber++ : null;
+      file.split(".").pop() === "xlsx" ? xlsxNumber++ : null;
+    }
+    for await (let file of dirFiles) {
+      const statistics = stat(`${path}/files/${userName}/${file}`);
 
-    if (dirFiles.length > 1) {
-      deleteTxt = dirFiles.find((file) => file.split(".").pop() === "txt");
-      deleteXlsx = dirFiles.find((file) => file.split(".").pop() === "xlsx");
-
-      try {
-        unlink(`${path}/files/${userName}/${deleteTxt}`);
-        unlink(`${path}/files/${userName}/${deleteXlsx}`);
-      } catch (e) {
-        console.log(e);
-      }
+      createTime.push({
+        fileName: file,
+        createdAt: (await statistics).ctimeMs,
+      });
     }
 
-    // Для удаления директории
-    // rmdir(`${path}/files/${dirName}`, { recursive: true });
+    if (txtNumber > 1) {
+      const saveTxt = this.mainUtilsService.latestCreated(createTime, "txt");
+      this.mainUtilsService.deleteOldFiles(dirFiles, "txt", userName, saveTxt);
+    } else if (xlsxNumber > 1) {
+      const saveXlsx = this.mainUtilsService.latestCreated(createTime, "xlsx");
+      this.mainUtilsService.deleteOldFiles(dirFiles, "xlsx", userName, saveXlsx);
+    }
   }
 }
