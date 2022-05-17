@@ -6,7 +6,10 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  HttpException,
+  HttpStatus,
   Post,
+  Res,
   StreamableFile,
   UploadedFile,
   UseInterceptors,
@@ -22,6 +25,7 @@ import { XlsxReaderService } from "./xlsx-reader/xlsx-reader.service";
 import { AddStreamDto } from "./xlsx-writer/dto/add-stream.dto";
 import { XlsxWriterService } from "./xlsx-writer/xlsx-writer.service";
 import { path } from "app-root-path";
+import { UserNameDto } from "./xlsx-writer/dto/user-name.dto";
 
 @Controller()
 export class AppController {
@@ -77,6 +81,15 @@ export class AppController {
       await this.xlsxWriterService.createXlsxFile(txtData, excelData, userName);
     } catch (e) {
       throw new BadRequestException("Не удалось выполнить запрос");
+    }
+  }
+
+  @Post("get-name")
+  @HttpCode(201)
+  async findSameFolder(@Body() userInfo: UserNameDto): Promise<void> {
+    const folders = await this.filesUploadService.sameDir();
+    if (folders.includes(userInfo.userName)) {
+      throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
     }
   }
 

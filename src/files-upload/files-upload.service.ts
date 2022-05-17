@@ -28,6 +28,14 @@ export class FilesUploadService {
     return res;
   }
 
+  async sameDir(): Promise<string[]> {
+    const folderPath = `${path}/files`;
+    await ensureDir(folderPath);
+    const folderFiles = await readdir(folderPath);
+
+    return folderFiles;
+  }
+
   async deleteAllFiles(userName: string): Promise<void> {
     let txtNumber = 0;
     let xlsxNumber = 0;
