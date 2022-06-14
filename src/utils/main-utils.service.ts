@@ -7,6 +7,7 @@ import { ensureDir, readdir } from "fs-extra";
 import { ICreatedAt } from "src/interfaces/createdAt.interface";
 import { unlink } from "fs-extra";
 import { UserName } from "src/decorators/user-name.decorator";
+import { IFeedProductStreams } from "src/interfaces/feed-product-streams.interface";
 
 @Injectable()
 export class MainUtilsService {

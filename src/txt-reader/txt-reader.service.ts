@@ -5,6 +5,7 @@ import { IFeedProductStreams } from "src/interfaces/feed-product-streams.interfa
 import { IHeatFlow } from "src/interfaces/heat-flow.interface";
 import { ITxtData } from "src/interfaces/txt-data.interface";
 import { MainUtilsService } from "../utils/main-utils.service";
+import { IStages } from "src/interfaces/stages.interface";
 
 @Injectable()
 export class TxtReaderService {
@@ -238,8 +239,8 @@ export class TxtReaderService {
     let endPosition = 0;
     let columnStreamData: string[] = [];
     let tempStage: string = "";
-    const feedStages = {};
-    const drawStages = {};
+    const feedStages: IStages = {};
+    const drawStages: IStages = {};
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].includes("Базис расхода")) {
